@@ -1,5 +1,7 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { ZodError } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -22,3 +24,19 @@ export const round2 = (value: string | number) => {
     throw new Error("value is not string or number");
   }
 };
+
+//eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function formatError(error: any) {
+  if (error instanceof ZodError) {
+    const fieldErrors = error.issues.map((err) => err.message);
+    return fieldErrors.join(". ");
+  } else if (error instanceof PrismaClientKnownRequestError) {
+    const field = (error.meta?.target as string) ?? "Field";
+
+    return `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
+  } else {
+    return typeof error.message === "string"
+      ? error.message
+      : JSON.stringify(error.message);
+  }
+}

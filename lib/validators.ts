@@ -1,5 +1,5 @@
 import { Description } from "@radix-ui/react-dialog";
-import { z } from "zod";
+import { email, z } from "zod";
 import { formatNumberWithDecimal } from "./utils";
 
 const currency = z
@@ -24,3 +24,25 @@ export const insertProductSchema = z.object({
   banner: z.string().optional().nullable(),
   price: currency,
 });
+
+export const signInFromSchema = z.object({
+  email: z
+    .string()
+    .email("Invalid email address")
+    .min(3, "Email must be at least 3 characters long"),
+  password: z.string().min(3, "Password must be at least 3 characters long"),
+});
+
+export const signUpFormSchema = z
+  .object({
+    name: z.string().min(3, "Name Must be at least 3 character"),
+    email: z.string().min(3, "password must be at least 3 character"),
+    password: z.string().min(3, "password must be at least 3 character"),
+    confirmPassword: z
+      .string()
+      .min(3, "Confirm Password must be at least 3 characters"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "passwords don't match",
+    path: ["confirmPassword"],
+  });
