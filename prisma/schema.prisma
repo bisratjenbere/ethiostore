@@ -3,6 +3,11 @@ generator client {
   output   = "../lib/generated/prisma"
 }
 
+enum Role {
+  user
+  admin
+}
+
 datasource db {
   provider = "postgresql"
 }
@@ -29,7 +34,7 @@ model User {
   name          String    @default("NO_NAME")
   email         String    @unique(map: "user_email_idx")
   password      String?
-  role          String    @default("user")
+  role          Role      @default(user)
   emailVerified DateTime? @db.Timestamp(6)
   image         String?
   address       Json?     @db.Json
