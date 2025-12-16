@@ -67,3 +67,10 @@ export async function signUp(prevState: unknown, formData: FormData) {
     };
   }
 }
+
+export async function updateUserNameInDb(userId: string, newName: string) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { name: newName },
+  });
+}

@@ -2,6 +2,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { ZodError } from "zod";
+import { User } from "./generated/prisma/client";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -39,4 +40,11 @@ export async function formatError(error: any) {
       ? error.message
       : JSON.stringify(error.message);
   }
+}
+//eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getNormalizedName(user: any) {
+  if (user.name === "NO_NAME") {
+    return user?.email.split("@")[0] ?? null;
+  }
+  return user?.name ?? null;
 }
