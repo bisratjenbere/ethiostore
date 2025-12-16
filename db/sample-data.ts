@@ -1,4 +1,8 @@
 import { hashSync } from "bcrypt-ts";
+enum Role {
+  "USER" = "user",
+  "ADMIN" = "admin",
+}
 
 const sampleData = {
   users: [
@@ -6,13 +10,13 @@ const sampleData = {
       name: "John",
       email: "admin@example.com",
       password: hashSync("123456", 10),
-      role: "admin",
+      role: Role.USER,
     },
     {
       name: "Jane",
       email: "jane@example.com",
       password: hashSync("123456", 10),
-      role: "user",
+      role: Role.USER,
     },
   ],
   products: [
