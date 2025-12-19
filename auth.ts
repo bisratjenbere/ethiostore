@@ -5,13 +5,22 @@ import { compareSync } from "bcrypt-ts";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { getNormalizedName } from "./lib/utils";
 import { updateUserNameInDb } from "./lib/actions/user.actions";
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+export const runtime = "nodejs";
 
 const config = {
+  pages: {
+    signIn: "/sign-in",
+    error: "/app/not-found",
+  },
+
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
   },
+
   providers: [
     Credentials({
       credentials: {
@@ -26,6 +35,7 @@ const config = {
           placeholder: "*****",
         },
       },
+
       authorize: async (credentials) => {
         if (credentials === null) return null;
 
@@ -65,19 +75,37 @@ const config = {
       }
       return session;
     },
+    async authorized({ request, auth }) {
+      if (!request.cookies.get("sessionCartId")) {
+        const sessionCartId = crypto.randomUUID();
+        //clone request header
+
+        const newRequestHeaders = new Headers(request.headers);
+        //create new responseand the new headers
+
+        const response = NextResponse.next({
+          request: {
+            headers: newRequestHeaders,
+          },
+        });
+        response.cookies.set("sessionCartId", sessionCartId);
+        return response;
+      } else {
+        return true;
+      }
+    },
+    async signIn({ user }) {
+      if (user && user.name === "NO_NAME" && user.id) {
+        const normalizedName = getNormalizedName(user);
+        if (normalizedName) {
+          await updateUserNameInDb(user.id, normalizedName);
+        }
+      }
+      return true;
+    },
     async jwt({ token, user, session, trigger }) {
       if (user) {
         if (user.role) token.role = user.role;
-        const normalizedName = getNormalizedName(user);
-        if (normalizedName) {
-          if (user.name === "NO_NAME" && user.id) {
-            try {
-              await updateUserNameInDb(user.id, normalizedName);
-            } catch (error) {
-              throw error;
-            }
-          }
-        }
       }
 
       if (session?.user?.name && trigger === "update") {
