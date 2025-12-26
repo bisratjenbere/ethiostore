@@ -1,9 +1,6 @@
 "use client";
 import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
 import { signInWithCredentials } from "@/lib/actions/user.actions";
-
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
@@ -11,22 +8,12 @@ import { useSearchParams } from "next/navigation";
 import SubmitButton from "@/components/ui/Submit-button ";
 
 const CredentialsSignInForm = () => {
-  const [data, action] = useActionState(signInWithCredentials, {
+  const [data, action, isPending] = useActionState(signInWithCredentials, {
     message: "",
     success: false,
   });
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
-
-  const SignInButton = () => {
-    const { pending } = useFormStatus();
-
-    return (
-      <Button className="w-full" variant="default" disabled={pending}>
-        {pending ? "Signing In..." : "Sign In with credentials"}
-      </Button>
-    );
-  };
 
   return (
     <form action={action}>
@@ -56,7 +43,7 @@ const CredentialsSignInForm = () => {
           <SubmitButton
             idleText="Sign In with credentials"
             className="w-full"
-            pendingText="Signing In..."
+            isPending={isPending}
           />
         </div>
         {data && !data.success && (

@@ -28,9 +28,16 @@ const calcPrice = (items: cartItem[]) => {
 
 export async function addItemToCart(data: cartItem) {
   try {
+
+    /// Retrive session cart id from cookies
     const sessionCartId = (await cookies()).get("sessionCartId")?.value;
+    //check whater the session cart id is found 
+    // The question is is there a possiblity where we can't get the session cart Id
+    // if so when and how this sessionId added
     if (!sessionCartId) throw new Error("Cart  Session not found");
+    /// getting current user session
     const session = await auth();
+    // if there is Logged user grap the user id of curre
     const userId = session?.user?.id ? (session.user.id as string) : undefined;
     const cart = await getMyCart();
     //parse and validate

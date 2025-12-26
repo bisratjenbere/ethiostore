@@ -7,6 +7,8 @@ import { getNormalizedName } from "./lib/utils";
 import { updateUserNameInDb } from "./lib/actions/user.actions";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { protectedPaths } from "./lib/constants";
+
 export const runtime = "nodejs";
 
 const config = {
@@ -78,10 +80,8 @@ const config = {
     async authorized({ request, auth }) {
       if (!request.cookies.get("sessionCartId")) {
         const sessionCartId = crypto.randomUUID();
-        //clone request header
 
         const newRequestHeaders = new Headers(request.headers);
-        //create new responseand the new headers
 
         const response = NextResponse.next({
           request: {
@@ -110,6 +110,23 @@ const config = {
 
       if (session?.user?.name && trigger === "update") {
         token.name = session.user.name;
+      }
+
+      if (trigger === "signIn" || trigger === "signUp") {
+        const cookiesObject = await cookies();
+        const sessionCartId = cookiesObject.get("sessionCartId")?.value;
+        if (sessionCartId) {
+          const cart = await prisma.cart.findFirst({
+            where: { sessionCartId },
+          });
+          console.log(cart, cart?.userId);
+          if (cart && !cart.userId) {
+            await prisma.cart.update({
+              where: { id: cart.id },
+              data: { userId: user.id },
+            });
+          }
+        }
       }
       return token;
     },

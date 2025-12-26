@@ -18,3 +18,28 @@ export const navLinks = [
     href: "/user/orders",
   },
 ];
+
+export const shippingAddressDefaultValues = {
+  fullName: "John Doe",
+  streetAddress: "123 Main St",
+  city: "Anytown",
+  postalCode: "12345",
+  country: "USA",
+};
+
+export const checkOutSteps = [
+  "User Login",
+  "shipping Address",
+  "Payment Address",
+  "Place Order",
+];
+
+export const protectedPaths = [
+  /\/shipping-address/,
+  /\/payment-method/,
+  /\/place-order/,
+  /\/profile/,
+  /\/user\/(.*)/,
+  /\/order\/(.*)/,
+  /\/admin/,
+];

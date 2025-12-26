@@ -1,11 +1,9 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { cookies } from "next/headers";
-
 export const runtime = "nodejs";
 
-export default auth((req) => {
+export const middleware = auth((req) => {
   const hasCartId = req.cookies.has("sessionCartId");
   if (!hasCartId) {
     const sessionCartId = crypto.randomUUID();
