@@ -2,17 +2,18 @@
 
 import { useFormStatus } from "react-dom";
 import { Button } from "./button";
+import { Loader } from "lucide-react";
 
 type submitButtonProps = {
   idleText: string;
-  pendingText: string;
   className?: string;
+  isPending?: boolean;
 };
 
 const SubmitButton = ({
   idleText,
-  pendingText,
   className,
+  isPending,
 }: submitButtonProps) => {
   const { pending } = useFormStatus();
   return (
@@ -22,7 +23,7 @@ const SubmitButton = ({
       variant="default"
       className={className}
     >
-      {pending ? pendingText : idleText}
+      {isPending ? <Loader className="animate-spin h-4 w-4" /> : idleText}
     </Button>
   );
 };

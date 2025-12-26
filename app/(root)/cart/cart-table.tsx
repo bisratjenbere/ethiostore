@@ -15,11 +15,13 @@ import { Cart } from "@/types";
 import { ArrowRight, Loader, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";
 
 const CartTable = ({ cart }: { cart?: Cart }) => {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   return (
     <>
       <h1 className="py-4">Shopping Cart</h1>
@@ -27,7 +29,12 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
       {!cart || cart.items.length === 0 ? (
         <div>
           Cart Is Empty.
-          <Link href="/">Go Shooping</Link>
+          <Link
+            href="/"
+            className="text-blue-600 underline hover:text-blue-800"
+          >
+            Go Shooping
+          </Link>
         </div>
       ) : (
         <div className="grid md:grid-cols-4 md:gap-5">
@@ -120,7 +127,15 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                   {FormatCurrency(cart.itemsPrice)}
                 </span>
               </div>
-              <Button>
+              <Button
+                disabled={isPending}
+                onClick={() =>
+                  startTransition(() => {
+                    router.push("/shipping-address");
+                  })
+                }
+                className="w-full"
+              >
                 {isPending ? (
                   <Loader className="animate-spin h-4 w-4" />
                 ) : (
