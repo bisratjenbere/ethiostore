@@ -45,7 +45,7 @@ export function getNormalizedName(user: any) {
   if (user.name === "NO_NAME") {
     return user?.email.split("@")[0] ?? null;
   }
-  return user?.name ?? null;
+  return user.name;
 }
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
