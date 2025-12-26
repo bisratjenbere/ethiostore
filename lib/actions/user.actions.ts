@@ -1,10 +1,11 @@
 "use server";
-
+import z from "zod";
 import { auth, signIn, signOut } from "@/auth";
 import {
   shippingAddressSchema,
   signInFromSchema,
   signUpFormSchema,
+  paymentMethodSchema,
 } from "../validators";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { hashSync } from "bcrypt-ts";
@@ -29,7 +30,7 @@ export async function signInWithCredentials(
     if (isRedirectError(error)) {
       throw error;
     }
-  
+
     return { success: false, message: "Invalid email or password" };
   }
 }
@@ -111,6 +112,30 @@ export async function updateUserAddress(data: ShippingAddress) {
   } catch (error) {
     return {
       success: false,
+      message: formatError(error),
+    };
+  }
+}
+
+export async function updateUserPaymentMethod(
+  data: z.infer<typeof paymentMethodSchema>
+) {
+  const session = await auth();
+  if (!session?.user.id) throw new Error("Unautorized");
+  const paymentMethod = paymentMethodSchema.parse(data);
+  try {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { paymentMethod: paymentMethod.type },
+    });
+
+    return {
+      success: true,
+      message: "User updated successfully",
+    };
+  } catch (error) {
+    return {
+      sucess: false,
       message: formatError(error),
     };
   }
