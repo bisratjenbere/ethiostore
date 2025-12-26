@@ -70,30 +70,13 @@ const config = {
     async session({ session, user, token, trigger }) {
       session.user.id = token.sub || "";
       session.user.name = token.name as string | undefined;
-      session.user.role =
-        (token.role as "user" | "admin" | undefined) ?? "user";
+      session.user.role = (token.role as "user" | "admin") ?? "user";
       if (trigger === "update") {
         session.user.name = user.name;
       }
       return session;
     },
-    async authorized({ request, auth }) {
-      if (!request.cookies.get("sessionCartId")) {
-        const sessionCartId = crypto.randomUUID();
 
-        const newRequestHeaders = new Headers(request.headers);
-
-        const response = NextResponse.next({
-          request: {
-            headers: newRequestHeaders,
-          },
-        });
-        response.cookies.set("sessionCartId", sessionCartId);
-        return response;
-      } else {
-        return true;
-      }
-    },
     async signIn({ user }) {
       if (user && user.name === "NO_NAME" && user.id) {
         const normalizedName = getNormalizedName(user);
@@ -103,32 +86,46 @@ const config = {
       }
       return true;
     },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}/${url}`;
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
     async jwt({ token, user, session, trigger }) {
-      if (user) {
-        if (user.role) token.role = user.role;
-      }
+      if (user && user.role) token.role = user.role;
 
       if (session?.user?.name && trigger === "update") {
         token.name = session.user.name;
       }
 
-      if (trigger === "signIn" || trigger === "signUp") {
-        const cookiesObject = await cookies();
-        const sessionCartId = cookiesObject.get("sessionCartId")?.value;
-        if (sessionCartId) {
-          const cart = await prisma.cart.findFirst({
-            where: { sessionCartId },
-          });
-          console.log(cart, cart?.userId);
-          if (cart && !cart.userId) {
-            await prisma.cart.update({
-              where: { id: cart.id },
-              data: { userId: user.id },
-            });
-          }
-        }
-      }
       return token;
+    },
+  },
+  events: {
+    async signIn({ user }) {
+      console.log("The sing is startinf excured");
+      const cookiesObject = await cookies();
+      const sessionCartId = cookiesObject.get("sessionCartId")?.value;
+      if (!sessionCartId) return;
+      const guestCart = await prisma.cart.findFirst({
+        where: { sessionCartId },
+      });
+      if (guestCart) {
+        await prisma.$transaction(async (tx) => {
+          const userCart = await prisma.cart.findFirst({
+            where: { userId: user.id },
+          });
+          if (userCart)
+            await prisma.cart.delete({
+              where: { id: userCart.id },
+            });
+
+          await prisma.cart.update({
+            where: { id: guestCart.id },
+            data: { userId: user.id },
+          });
+        });
+      }
     },
   },
 } satisfies NextAuthConfig;
