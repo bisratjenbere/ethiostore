@@ -11,7 +11,7 @@ import { signUp } from "@/lib/actions/user.actions";
 import SubmitButton from "@/components/ui/Submit-button ";
 
 const SignUpForm = () => {
-  const [data, action] = useActionState(signUp, {
+  const [data, action, isPending] = useActionState(signUp, {
     message: "",
     success: false,
   });
@@ -64,8 +64,8 @@ const SignUpForm = () => {
         </div>
         <div>
           <SubmitButton
+            isPending={isPending}
             idleText="Sign Up"
-            pendingText="Submitting"
             className="w-ful"
           />
         </div>
