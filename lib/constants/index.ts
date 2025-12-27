@@ -30,7 +30,7 @@ export const shippingAddressDefaultValues = {
 export const checkOutSteps = [
   "User Login",
   "shipping Address",
-  "Payment Address",
+  "Payment Method",
   "Place Order",
 ];
 
