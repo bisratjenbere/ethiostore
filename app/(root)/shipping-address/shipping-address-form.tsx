@@ -2,7 +2,6 @@
 
 import { shippingAddressSchema } from "@/lib/validators";
 import { ShippingAddress } from "@/types";
-
 import { z } from "zod";
 import { shippingAddressDefaultValues } from "@/lib/constants";
 import { ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
@@ -10,7 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,166 +17,224 @@ import {
 import { Input } from "@/components/ui/input";
 import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Loader } from "lucide-react";
 import { updateUserAddress } from "@/lib/actions/user.actions";
+import { saveGuestCheckoutData } from "@/lib/actions/guest-checkout.actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import CheckOutSteps from "@/components/shared/checkout-steps";
-import { auth } from "@/auth";
+import Link from "next/link";
+
+// Extend schema with optional email for guests
+const guestShippingSchema = shippingAddressSchema.extend({
+  email: z.string().email("Valid email required").optional(),
+});
+
+type FormValues = z.infer<typeof guestShippingSchema>;
 
 const ShippingAddressForm = ({
   address,
+  isGuest,
+  guestEmail,
 }: {
   address: ShippingAddress | null;
+  isGuest: boolean;
+  guestEmail?: string;
 }) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof shippingAddressSchema>>({
-    resolver: zodResolver(shippingAddressSchema),
-    defaultValues: address || shippingAddressDefaultValues,
+  const form = useForm<FormValues>({
+    resolver: zodResolver(
+      isGuest
+        ? guestShippingSchema.extend({
+            email: z.string().email("Valid email required"),
+          })
+        : shippingAddressSchema
+    ),
+    defaultValues: {
+      ...(address || shippingAddressDefaultValues),
+      email: guestEmail ?? "",
+    },
   });
 
-  const onSubmit: SubmitHandler<z.infer<typeof shippingAddressSchema>> = (
-    value
-  ) => {
+  const onSubmit: SubmitHandler<FormValues> = (value) => {
     startTransition(async () => {
-      const res = await updateUserAddress(value);
-      if (!res.success) toast.error(res.message);
-      router.push("/payment-method");
-      return;
+      if (isGuest) {
+        const { email, ...addressFields } = value;
+        await saveGuestCheckoutData({ email, address: addressFields });
+        router.push("/payment-method");
+      } else {
+        const res = await updateUserAddress(value);
+        if (!res.success) {
+          toast.error(res.message);
+          return;
+        }
+        router.push("/payment-method");
+      }
     });
   };
+
   return (
-    <>
+    <div className="wrapper py-8">
       <CheckOutSteps current={1} />
-      <div className="space-y-4 max-w-md mx-auto">
-        <h1 className="h2-bold mt-4">Shipping Address</h1>
-        <p className="text-sm text-muted-foreground">
-          Please Enter the address that you want to ship to
-        </p>
-        <Form {...form}>
-          <form method="post" onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="flex flex-col gap-5 md:flex-row">
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({
-                  field,
-                }: {
-                  field: ControllerRenderProps<
-                    z.infer<typeof shippingAddressSchema>,
-                    "fullName"
-                  >;
-                }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Full Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter full name" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+      <div className="space-y-6 max-w-2xl mx-auto mt-8">
+        <div className="space-y-2">
+          <h1 className="h2-bold">Shipping Address</h1>
+          <p className="text-muted-foreground">
+            Please enter the address where you want to ship to
+          </p>
+        </div>
+        <Card>
+          <CardContent className="p-6">
+            <Form {...form}>
+              <form
+                method="post"
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                {/* Email — guests only */}
+                {isGuest && (
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({
+                      field,
+                    }: {
+                      field: ControllerRenderProps<FormValues, "email">;
+                    }) => (
+                      <FormItem>
+                        <FormLabel>Email Address</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="email"
+                            placeholder="your@email.com"
+                          />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          For order confirmation and tracking
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 )}
-              />
-            </div>
-            <div>
-              <FormField
-                control={form.control}
-                name="streetAddress"
-                render={({
-                  field,
-                }: {
-                  field: ControllerRenderProps<
-                    z.infer<typeof shippingAddressSchema>,
-                    "streetAddress"
-                  >;
-                }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter Address" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex flex-col gap-5 md:flex-row">
-              <FormField
-                name="city"
-                control={form.control}
-                render={({
-                  field,
-                }: {
-                  field: ControllerRenderProps<
-                    z.infer<typeof shippingAddressSchema>,
-                    "city"
-                  >;
-                }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter City " />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="country"
-              render={({
-                field,
-              }: {
-                field: ControllerRenderProps<
-                  z.infer<typeof shippingAddressSchema>,
-                  "country"
-                >;
-              }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Country</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter country" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="postalCode"
-              render={({
-                field,
-              }: {
-                field: ControllerRenderProps<
-                  z.infer<typeof shippingAddressSchema>,
-                  "postalCode"
-                >;
-              }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Postal Code</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter postal code" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex mt-4 gap-2">
-              <Button disabled={isPending} type="submit">
-                {isPending ? (
-                  <Loader className="h-4 w-4 animate-spin" />
-                ) : (
-                  <ArrowRight className="h-4 w-4 " />
-                )}
-                continue
-              </Button>
-            </div>
-          </form>
-        </Form>
+
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({
+                    field,
+                  }: {
+                    field: ControllerRenderProps<FormValues, "fullName">;
+                  }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter full name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="streetAddress"
+                  render={({
+                    field,
+                  }: {
+                    field: ControllerRenderProps<FormValues, "streetAddress">;
+                  }) => (
+                    <FormItem>
+                      <FormLabel>Street Address</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter street address" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid sm:grid-cols-2 gap-6">
+                  <FormField
+                    name="city"
+                    control={form.control}
+                    render={({
+                      field,
+                    }: {
+                      field: ControllerRenderProps<FormValues, "city">;
+                    }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Enter city" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="postalCode"
+                    render={({
+                      field,
+                    }: {
+                      field: ControllerRenderProps<FormValues, "postalCode">;
+                    }) => (
+                      <FormItem>
+                        <FormLabel>Postal Code</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter postal code" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="country"
+                  render={({
+                    field,
+                  }: {
+                    field: ControllerRenderProps<FormValues, "country">;
+                  }) => (
+                    <FormItem>
+                      <FormLabel>Country</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter country" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
+                  <Link href="/cart" className="flex-1">
+                    <Button type="button" variant="outline" className="w-full">
+                      Back to Cart
+                    </Button>
+                  </Link>
+                  <Button disabled={isPending} type="submit" className="flex-1">
+                    {isPending ? (
+                      <Loader className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <ArrowRight className="h-4 w-4 mr-2" />
+                    )}
+                    Continue to Payment
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -17,13 +17,19 @@ import {
 } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Loader } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, ArrowRight, CreditCard, Loader, Shield } from "lucide-react";
 import { updateUserPaymentMethod } from "@/lib/actions/user.actions";
+import { saveGuestCheckoutData } from "@/lib/actions/guest-checkout.actions";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const PaymentMethodForm = ({
   preferredPaymentMethod,
+  isGuest,
 }: {
   preferredPaymentMethod: string | null;
+  isGuest: boolean;
 }) => {
   const router = useRouter();
   const form = useForm<z.infer<typeof paymentMethodSchema>>({
@@ -34,76 +40,123 @@ const PaymentMethodForm = ({
   });
 
   const [isPending, startTransition] = useTransition();
+
   async function onSubmit(values: z.infer<typeof paymentMethodSchema>) {
     startTransition(async () => {
-      const res = await updateUserPaymentMethod(values);
-      if (!res.success) toast.error(res.message);
-      return;
+      if (isGuest) {
+        await saveGuestCheckoutData({ paymentMethod: values.type });
+        router.push("/place-order");
+      } else {
+        const res = await updateUserPaymentMethod(values);
+        if (!res.success) toast.error(res.message);
+        else router.push("/place-order");
+      }
     });
-    router.push("/place-order");
   }
 
   return (
-    <>
+    <div className="wrapper py-8">
       <CheckOutSteps current={2} />
-      <div className="max-w-md mx-auto">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            method="post"
-            className="space-y-4"
-          >
-            <h1 className="h2-bold mt-4">Payment Method</h1>
-            <p className="text-sm text-muted-foreground">
-              Please select your preferred payment method
-            </p>
-            <div className="flex flex-col gap-5 md:flex-row">
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormControl>
-                      <RadioGroup
-                        className="flex flex-col space-y-2"
-                        onValueChange={field.onChange}
-                      >
-                        {PAYMENT_METHODS.map((paymentMethod) => (
-                          <FormItem
-                            className="flex space-x-3 space-y-0 items-center"
-                            key={paymentMethod}
-                          >
-                            <FormControl>
-                              <RadioGroupItem
-                                value={paymentMethod}
-                                checked={field.value === paymentMethod}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              {paymentMethod}
-                            </FormLabel>
-                          </FormItem>
-                        ))}
-                      </RadioGroup>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+      <div className="max-w-2xl mx-auto mt-8 space-y-6">
+        <div className="space-y-2">
+          <h1 className="h2-bold">Payment Method</h1>
+          <p className="text-muted-foreground">
+            Please select your preferred payment method
+          </p>
+        </div>
+
+        <Card className="bg-muted/30 border-dashed">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <Shield className="h-5 w-5 text-primary" />
+              <p className="text-sm">
+                <span className="font-medium">Secure Payment</span>
+                <span className="text-muted-foreground">
+                  {" "}
+                  - Your payment information is safe and encrypted
+                </span>
+              </p>
             </div>
-            <div className="flex gap-2">
-              <Button type="submit" disabled={isPending}>
-                {isPending ? (
-                  <Loader className="animate-spin h-4 w-4" />
-                ) : (
-                  <ArrowRight className=" h-4 w-4" />
-                )}
-                Continue
-              </Button>
-            </div>
-          </form>
-        </Form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                method="post"
+                className="space-y-6"
+              >
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <RadioGroup
+                          className="grid gap-4"
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          {PAYMENT_METHODS.map((paymentMethod) => (
+                            <FormItem key={paymentMethod}>
+                              <FormLabel className="cursor-pointer">
+                                <Card
+                                  className={cn(
+                                    "cursor-pointer transition-all hover:border-primary",
+                                    field.value === paymentMethod &&
+                                      "border-primary bg-primary/5"
+                                  )}
+                                >
+                                  <CardContent className="p-4">
+                                    <div className="flex items-center gap-3">
+                                      <FormControl>
+                                        <RadioGroupItem
+                                          value={paymentMethod}
+                                          checked={
+                                            field.value === paymentMethod
+                                          }
+                                        />
+                                      </FormControl>
+                                      <CreditCard className="h-5 w-5 text-muted-foreground" />
+                                      <span className="font-medium">
+                                        {paymentMethod}
+                                      </span>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </FormLabel>
+                            </FormItem>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
+                  <Link href="/shipping-address" className="flex-1">
+                    <Button type="button" variant="outline" className="w-full">
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Back to Shipping
+                    </Button>
+                  </Link>
+                  <Button type="submit" disabled={isPending} className="flex-1">
+                    {isPending ? (
+                      <Loader className="animate-spin h-4 w-4 mr-2" />
+                    ) : (
+                      <ArrowRight className="h-4 w-4 mr-2" />
+                    )}
+                    Continue to Review
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
       </div>
-    </>
+    </div>
   );
 };
 
