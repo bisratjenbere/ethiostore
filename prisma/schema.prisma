@@ -26,8 +26,15 @@ model Product {
   numReviews  Int         @default(0)
   isFeatured  Boolean     @default(false)
   banner      String?     @default("")
+  isActive    Boolean     @default(true)
   createdAt   DateTime    @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime    @updatedAt @db.Timestamp(6)
   orderItems  OrderItem[]
+  reviews     Review[]
+
+  @@index([category])
+  @@index([brand])
+  @@index([stock])
 }
 
 model User {
@@ -46,6 +53,7 @@ model User {
   session       Session[]
   carts         Cart[]
   orders        Order[]
+  reviews       Review[]
 }
 
 model Account {
@@ -109,10 +117,34 @@ model Order {
   isPaid          Boolean     @default(false)
   paidAt          DateTime?   @db.Timestamp(6)
   isDelivered     Boolean     @default(false)
-  deliveredAt     DateTime    @db.Timestamp()
+  deliveredAt     DateTime?   @db.Timestamp(6)
   createdAt       DateTime    @default(now()) @db.Timestamp(6)
   user            User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "order_user_id_fk")
   orderItems      OrderItem[]
+
+  @@index([userId])
+  @@index([isPaid])
+  @@index([isDelivered])
+  @@index([createdAt])
+}
+
+model Review {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @db.Uuid
+  productId  String   @db.Uuid
+  rating     Int
+  title      String
+  comment    String
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now()) @db.Timestamp(6)
+  updatedAt  DateTime @updatedAt @db.Timestamp(6)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([productId])
+  @@index([userId])
 }
 
 model OrderItem {

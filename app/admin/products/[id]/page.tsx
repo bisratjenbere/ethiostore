@@ -42,7 +42,7 @@ export default async function AdminProductDetailsPage({
     ...product,
     price: product.price.toString(),
     rating: product.rating.toString(),
-  });
+  }) as typeof product & { price: string; rating: string; updatedAt: Date };
 
   return (
     <div className="space-y-6">
@@ -209,14 +209,14 @@ export default async function AdminProductDetailsPage({
               <div>
                 <div className="text-sm font-medium">Created</div>
                 <div className="text-sm text-muted-foreground">
-                  {new Date(product.createdAt).toLocaleString()}
+                  {new Date(formattedProduct.createdAt).toLocaleString()}
                 </div>
               </div>
-              {product.updatedAt && (
+              {formattedProduct.updatedAt && (
                 <div>
                   <div className="text-sm font-medium">Last Updated</div>
                   <div className="text-sm text-muted-foreground">
-                    {new Date(product.updatedAt).toLocaleString()}
+                    {new Date(formattedProduct.updatedAt).toLocaleString()}
                   </div>
                 </div>
               )}

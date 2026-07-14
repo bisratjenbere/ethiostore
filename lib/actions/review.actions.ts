@@ -9,7 +9,6 @@ import { z } from "zod";
 
 const REVIEWS_PER_PAGE = 5;
 
-// Recalculate and update product rating + numReviews
 async function updateProductRating(productId: string) {
   const { _avg, _count } = await prisma.review.aggregate({
     where: { productId },
@@ -34,7 +33,6 @@ export async function createOrUpdateReview(
 
     const validated = insertReviewSchema.parse(data);
 
-    // Check if user purchased this product (verified purchase)
     const hasPurchased = await prisma.orderItem.findFirst({
       where: {
         productId: validated.productId,
@@ -67,7 +65,6 @@ export async function createOrUpdateReview(
 
     await updateProductRating(validated.productId);
 
-    // Get product slug for revalidation
     const product = await prisma.product.findUnique({
       where: { id: validated.productId },
       select: { slug: true },
@@ -76,7 +73,7 @@ export async function createOrUpdateReview(
 
     return { success: true, message: "Review submitted successfully" };
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: await formatError(error) };
   }
 }
 
@@ -87,10 +84,7 @@ export async function deleteReview(reviewId: string) {
 
     const review = await prisma.review.findUnique({ where: { id: reviewId } });
     if (!review) throw new Error("Review not found");
-    if (
-      review.userId !== session.user.id &&
-      session.user.role !== "admin"
-    ) {
+    if (review.userId !== session.user.id && session.user.role !== "admin") {
       throw new Error("Unauthorized");
     }
 
@@ -105,7 +99,7 @@ export async function deleteReview(reviewId: string) {
 
     return { success: true, message: "Review deleted" };
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: await formatError(error) };
   }
 }
 
@@ -136,6 +130,7 @@ export async function getUserReviewForProduct(productId: string) {
     where: {
       userId_productId: { userId: session.user.id, productId },
     },
+    include: { user: { select: { name: true } } },
   });
   return review ? convertToPlainObject(review) : null;
 }
@@ -153,7 +148,10 @@ export async function getProductRatingBreakdown(productId: string) {
   for (let i = 1; i <= 5; i++) {
     const found = breakdown.find((r) => r.rating === i);
     const count = found?._count.rating ?? 0;
-    result[i] = { count, percent: total > 0 ? Math.round((count / total) * 100) : 0 };
+    result[i] = {
+      count,
+      percent: total > 0 ? Math.round((count / total) * 100) : 0,
+    };
   }
 
   return result;

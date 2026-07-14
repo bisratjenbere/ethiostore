@@ -37,7 +37,7 @@ export default function ReviewForm({
   const [hoveredStar, setHoveredStar] = useState(0);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(insertReviewSchema) as ReturnType<typeof zodResolver<typeof insertReviewSchema>>,
+    resolver: zodResolver(insertReviewSchema),
     defaultValues: {
       productId,
       rating: existingReview?.rating ?? 0,
@@ -50,7 +50,7 @@ export default function ReviewForm({
 
   function onSubmit(values: FormValues) {
     startTransition(async () => {
-      const res = await createOrUpdateReview(values as FormValues);
+      const res = await createOrUpdateReview(values);
       if (res.success) {
         toast.success(res.message);
         if (!existingReview) form.reset({ productId, rating: 0, title: "", comment: "" });
@@ -79,7 +79,6 @@ export default function ReviewForm({
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Star Rating */}
             <FormField
               control={form.control}
               name="rating"
@@ -114,7 +113,6 @@ export default function ReviewForm({
               )}
             />
 
-            {/* Title */}
             <FormField
               control={form.control}
               name="title"
@@ -129,7 +127,6 @@ export default function ReviewForm({
               )}
             />
 
-            {/* Comment */}
             <FormField
               control={form.control}
               name="comment"
@@ -160,11 +157,7 @@ export default function ReviewForm({
                   onClick={handleDelete}
                   disabled={isDeleting}
                 >
-                  {isDeleting ? (
-                    <Loader className="h-4 w-4 animate-spin" />
-                  ) : (
-                    "Delete"
-                  )}
+                  {isDeleting ? <Loader className="h-4 w-4 animate-spin" /> : "Delete"}
                 </Button>
               )}
             </div>

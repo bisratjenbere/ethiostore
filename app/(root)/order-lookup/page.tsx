@@ -46,7 +46,7 @@ export default function OrderLookupPage() {
       if (res.success) {
         setOrder(res.data);
       } else {
-        setError(res.message);
+        setError(res.message ?? "Order not found");
       }
     });
   }
@@ -65,10 +65,7 @@ export default function OrderLookupPage() {
         <Card>
           <CardContent className="p-6">
             <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
                   name="email"
@@ -76,11 +73,7 @@ export default function OrderLookupPage() {
                     <FormItem>
                       <FormLabel>Email Address</FormLabel>
                       <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="your@email.com"
-                          {...field}
-                        />
+                        <Input type="email" placeholder="your@email.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -93,10 +86,7 @@ export default function OrderLookupPage() {
                     <FormItem>
                       <FormLabel>Order ID</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="From your confirmation email"
-                          {...field}
-                        />
+                        <Input placeholder="From your confirmation email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -143,9 +133,7 @@ export default function OrderLookupPage() {
                 </div>
                 <div>
                   <p className="text-muted-foreground">Total</p>
-                  <p className="font-medium">
-                    {FormatCurrency(order.totalPrice)}
-                  </p>
+                  <p className="font-medium">{FormatCurrency(order.totalPrice)}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Delivery</p>

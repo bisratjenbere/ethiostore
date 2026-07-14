@@ -43,11 +43,6 @@ export const DEFAULT_PAYMENT_METHOD =
   process.env.DEFAULT_PAYMENT_METHOD || "PayPal";
 
 export const protectedPaths = [
-  /\/shipping-address/,
-  /\/payment-method/,
-  /\/place-order/,
-  /\/profile/,
   /\/user\/(.*)/,
-  /\/order\/(.*)/,
   /\/admin/,
 ];

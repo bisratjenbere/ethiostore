@@ -139,6 +139,7 @@
 
 | Feature | Status | Evidence | What's Missing |
 |---------|--------|----------|----------------|
+| OAuth Providers | ⚠️ **CODE READY** | Google provider added to `auth.ts`, UI updated | Need Google Cloud credentials (10 min setup) |
 | Order Tracking | ⚠️ PARTIAL | Shows `isPaid`, `isDelivered` booleans | No tracking number, carrier, shipment updates |
 | Payment Processing | ⚠️ PARTIAL | Payment method selection UI exists | No actual payment gateway integration |
 | Product Reviews | ⚠️ PARTIAL | `Product.rating` and `Product.numReviews` exist | No Review model, no submission flow |

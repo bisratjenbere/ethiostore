@@ -108,7 +108,7 @@ export async function createOrder() {
       orderId: order.id,
     };
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: await formatError(error) };
   }
 }
 
@@ -202,6 +202,6 @@ export async function lookupGuestOrder(email: string, orderId: string) {
       }),
     };
   } catch (error) {
-    return { success: false, message: formatError(error) };
+    return { success: false, message: await formatError(error) };
   }
 }

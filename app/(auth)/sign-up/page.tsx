@@ -12,6 +12,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import SignUpForm from "./signup-form";
+import GoogleSignInButton from "@/components/shared/auth/google-signin-button";
 
 export const metadata: Metadata = {
   title: "Sign Up",
@@ -46,7 +47,20 @@ const SignUp = async (props: {
             Enter your information below to create your account
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <GoogleSignInButton text="Sign up with Google" />
+          
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+          
           <SignUpForm />
         </CardContent>
       </Card>

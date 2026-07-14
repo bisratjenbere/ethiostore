@@ -61,7 +61,7 @@ export default async function ShopPage({
   }
 
   const { products, total, pages, currentPage, categories, brands } =
-    result.data;
+    result.data!;
 
   return (
     <div className="wrapper py-8">

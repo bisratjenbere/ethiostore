@@ -194,7 +194,7 @@ export async function updateOrderDeliveryStatus(
       where: { id: orderId },
       data: {
         isDelivered,
-        deliveredAt: isDelivered ? new Date() : null,
+        deliveredAt: isDelivered ? new Date() : undefined,
       },
     });
 
