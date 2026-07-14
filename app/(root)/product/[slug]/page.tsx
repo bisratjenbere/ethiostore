@@ -1,13 +1,15 @@
 import ProductImages from "@/components/shared/product/product-images";
 import ProductPrice from "@/components/shared/product/product-price";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
 import AddToCart from "@/components/shared/product/add-to-cart";
+import ReviewSection from "@/components/shared/product/review-section";
 import { notFound } from "next/navigation";
 import { getProductBySlug } from "@/lib/actions/product.actions";
 import { getMyCart } from "@/lib/actions/cart.actions";
+import { ChevronRight, Package, Star, Truck } from "lucide-react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const ProductDetailsPage = async (props: {
   params: Promise<{ slug: string }>;
@@ -18,55 +20,138 @@ const ProductDetailsPage = async (props: {
   if (!product) notFound();
 
   const cart = await getMyCart();
+  const rating = Number(product.rating);
 
   return (
-    <>
-      <section>
-        <div className="grid grid-cols-1 md:grid-cols-5">
-          <div className="col-span-2">
-            <ProductImages images={product.images!} />
-          </div>
-          <div className="col-span-2 p-5">
-            <div className="flex flex-col gap-6">
-              <p>
-                {product.brand} {product.category}
-              </p>
-              <h1 className="h3-bold">{product.name}</h1>
-              <p>
-                {product.rating} of {product.numReviews} Reviews
-              </p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <ProductPrice
-                  claseName="rounded-full w-24 bg-green-100 text-green-700 py-2 px-5"
-                  value={Number(product.price)}
-                />
-              </div>
-            </div>
-            <div className="mt-10">
-              <p>Description:</p>
-              <p>{product.description}</p>
-            </div>
+    <div className="wrapper py-8">
+      {/* Breadcrumbs */}
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+        <Link href="/" className="hover:text-foreground transition-colors">
+          Home
+        </Link>
+        <ChevronRight className="h-4 w-4" />
+        <Link href="/shop" className="hover:text-foreground transition-colors">
+          Shop
+        </Link>
+        <ChevronRight className="h-4 w-4" />
+        <span className="text-foreground font-medium truncate">{product.name}</span>
+      </nav>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Product Images - Left */}
+        <div className="lg:col-span-1">
+          <ProductImages images={product.images!} />
+        </div>
+
+        {/* Product Info - Middle */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Brand and Category */}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-muted-foreground uppercase tracking-wide">{product.brand}</span>
+            <span className="text-muted-foreground">•</span>
+            <span className="text-muted-foreground capitalize">{product.category}</span>
           </div>
 
-          <div>
+          {/* Product Name */}
+          <h1 className="h2-bold">{product.name}</h1>
+
+          {/* Rating */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={cn(
+                    "h-5 w-5",
+                    i < Math.floor(rating)
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "fill-gray-200 text-gray-200"
+                  )}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-muted-foreground">
+              {rating} ({product.numReviews || 0} reviews)
+            </span>
+          </div>
+
+          {/* Price */}
+          <div className="flex items-baseline gap-2">
+            <ProductPrice value={Number(product.price)} claseName="text-3xl font-bold" />
+          </div>
+
+          {/* Features */}
+          {product.stock! > 0 ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm text-green-600">
+                <Package className="h-4 w-4" />
+                <span className="font-medium">In Stock</span>
+                {product.stock! < 10 && (
+                  <span className="text-muted-foreground">
+                    - Only {product.stock} left!
+                  </span>
+                )}
+              </div>
+              {product.isFeatured && (
+                <Badge className="bg-accent text-accent-foreground">
+                  Featured Product
+                </Badge>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-sm text-destructive">
+              <Package className="h-4 w-4" />
+              <span className="font-medium">Out of Stock</span>
+            </div>
+          )}
+
+          {/* Description */}
+          <div className="border-t pt-6 space-y-3">
+            <h2 className="font-semibold text-lg">Description</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              {product.description}
+            </p>
+          </div>
+
+          {/* Trust Signals */}
+          <Card className="bg-muted/30">
+            <CardContent className="p-4 space-y-2">
+              <div className="flex items-start gap-3">
+                <Truck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-sm">Free Shipping</p>
+                  <p className="text-xs text-muted-foreground">On orders over $100</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Buy Card - Right Sticky */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-20">
             <Card>
-              <CardContent className="p-4">
-                <div className="flex flex-between mb-2">
-                  <div>Price</div>
-                  <div>
-                    <ProductPrice value={Number(product.price)} />
+              <CardContent className="p-6 space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-3 border-b">
+                    <span className="text-sm text-muted-foreground">Price</span>
+                    <ProductPrice value={Number(product.price)} claseName="text-2xl font-bold" />
+                  </div>
+                  
+                  <div className="flex items-center justify-between pb-3 border-b">
+                    <span className="text-sm text-muted-foreground">Status</span>
+                    {product.stock! > 0 ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        In Stock
+                      </Badge>
+                    ) : (
+                      <Badge variant="destructive">Unavailable</Badge>
+                    )}
                   </div>
                 </div>
-                <div className="mb-2 flex flex-between">
-                  <div>Status</div>
-                  {product.stock > 0 ? (
-                    <Badge variant="outline">In Stock</Badge>
-                  ) : (
-                    <Badge variant="destructive">Unavailable</Badge>
-                  )}
-                </div>
-                {product.stock > 0 && (
-                  <div className="flex-center">
+
+                {product.stock! > 0 && (
+                  <div className="pt-2" data-buy-button>
                     <AddToCart
                       cart={cart}
                       item={{
@@ -80,12 +165,28 @@ const ProductDetailsPage = async (props: {
                     />
                   </div>
                 )}
+                
+                {product.stock! === 0 && (
+                  <p className="text-sm text-center text-muted-foreground pt-2">
+                    This product is currently unavailable
+                  </p>
+                )}
               </CardContent>
             </Card>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+
+      {/* Reviews */}
+      <div className="mt-12 border-t pt-10">
+        <ReviewSection
+          productId={product.id}
+          productSlug={product.slug}
+          avgRating={rating}
+          numReviews={product.numReviews || 0}
+        />
+      </div>
+    </div>
   );
 };
 
