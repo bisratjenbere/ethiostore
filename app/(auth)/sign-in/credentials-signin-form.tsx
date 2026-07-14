@@ -3,7 +3,6 @@ import { useActionState } from "react";
 import { signInWithCredentials } from "@/lib/actions/user.actions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import SubmitButton from "@/components/ui/Submit-button ";
 
@@ -49,12 +48,6 @@ const CredentialsSignInForm = () => {
         {data && !data.success && (
           <div className="text-destructive text-center">{data.message}</div>
         )}
-        <div className="text-center text-sm text-muted-foreground">
-          don&apos;t have an account?{""}
-          <Link target="_self" className="link" href={"/sign-up"}>
-            Sign Up
-          </Link>
-        </div>
       </div>
     </form>
   );

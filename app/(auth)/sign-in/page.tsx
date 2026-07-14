@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -11,7 +10,6 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import CredentialsSignInForm from "./credentials-signin-form";
-import GoogleSignInButton from "@/components/shared/auth/google-signin-button";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
@@ -30,41 +28,43 @@ const SignIn = async (props: {
   if (session) {
     redirect(callbackUrl || "/");
   }
+  
   return (
-    <div className="w-full mx-auto max-w-md">
-      <Card>
-        <CardHeader className="space-y-4">
-          <Link href="/" className="flex-center">
-            <Image
-              width={100}
-              height={100}
-              priority={true}
-              src="/images/logo.svg"
-              alt={`${APP_NAME} logo`}
-            />
-          </Link>
-          <CardTitle className="text-center">Sign In</CardTitle>
-          <CardDescription className="text-center">
-            Select a method to sign in to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <GoogleSignInButton />
-          
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4">
+      <div className="w-full max-w-md">
+        <Card>
+          <CardHeader className="space-y-4">
+            <Link href="/" className="flex justify-center">
+              <Image
+                width={60}
+                height={60}
+                priority={true}
+                src="/images/logo.svg"
+                alt={`${APP_NAME} logo`}
+                className="transition-transform hover:scale-105"
+              />
+            </Link>
+            <div className="space-y-2 text-center">
+              <CardTitle className="text-2xl">Welcome back</CardTitle>
+              <CardDescription>
+                Sign in to your account to continue shopping
+              </CardDescription>
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
-              </span>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <CredentialsSignInForm />
+            <div className="text-center text-sm">
+              <span className="text-muted-foreground">Don't have an account? </span>
+              <Link 
+                href="/sign-up" 
+                className="text-primary hover:underline font-medium"
+              >
+                Sign up
+              </Link>
             </div>
-          </div>
-          
-          <CredentialsSignInForm />
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
