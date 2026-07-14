@@ -10,23 +10,24 @@ import { cn } from "@/lib/utils";
 const ProductCard = ({ product }: { product: Product }) => {
   return (
     <Card className="group h-full overflow-hidden hover:shadow-2xl transition-all duration-300 border-0 shadow-md">
-      {/* Badges */}
-      <div className="relative">
-        {product.isFeatured && (
-          <Badge className="absolute top-4 left-4 z-10 bg-accent text-accent-foreground hover:bg-accent/90">
-            Featured
-          </Badge>
-        )}
-        
-        {product.stock! > 0 && product.stock! < 10 && (
-          <Badge variant="destructive" className="absolute top-4 right-4 z-10">
-            Only {product.stock} left!
-          </Badge>
-        )}
-      </div>
-      
-      {/* Image */}
+      {/* Image with Badges */}
       <CardHeader className="p-0 relative overflow-hidden">
+        {/* Badges - positioned on top of image */}
+        <div className="absolute top-3 left-0 right-0 z-10 flex items-start justify-between px-3 gap-2">
+          {product.isFeatured && (
+            <Badge className="bg-accent text-accent-foreground hover:bg-accent/90 text-xs whitespace-nowrap shadow-lg">
+              Featured
+            </Badge>
+          )}
+          
+          {product.stock! > 0 && product.stock! < 10 && (
+            <Badge variant="destructive" className="text-xs whitespace-nowrap ml-auto shadow-lg">
+              Only {product.stock} left!
+            </Badge>
+          )}
+        </div>
+        
+        {/* Image */}
         <Link href={`/product/${product.slug}`}>
           <div className="relative aspect-square bg-muted/30">
             <Image
