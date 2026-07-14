@@ -10,19 +10,20 @@ const ProductList = ({
   title?: string;
   limit?: number;
 }) => {
-  const limtedData = limit ? data.slice(0, limit) : data;
+  const limitedData = limit ? data.slice(0, limit) : data;
+  
   return (
-    <div className="my-10">
-      <h2 className="h2-bold mb-4">{title}</h2>
+    <div className="space-y-8">
+      {title && <h2 className="h2-bold">{title}</h2>}
       {data.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {limtedData.map((product: Product) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          {limitedData.map((product: Product) => (
             <ProductCard key={product?.slug} product={product} />
           ))}
         </div>
       ) : (
-        <div>
-          <p>No Product Found</p>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No products found</p>
         </div>
       )}
     </div>
