@@ -15,6 +15,9 @@ const Menu = () => {
   return (
     <div className="flex justify-end gap-3">
       <nav className="md:flex hidden w-full gap-1 max-w-xs">
+        <Button asChild variant="ghost">
+          <Link href="/shop">Shop</Link>
+        </Button>
         <ModeToggle />
         <Button asChild variant="ghost">
           <Link href="/cart">
@@ -31,6 +34,9 @@ const Menu = () => {
           </SheetTrigger>
           <SheetContent className="flex flex-col items-start">
             <SheetTitle>Menu</SheetTitle>
+            <Button asChild variant="ghost">
+              <Link href="/shop">Shop</Link>
+            </Button>
             <ModeToggle />
             <Button asChild variant="ghost">
               <Link href="/cart">

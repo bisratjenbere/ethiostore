@@ -6,10 +6,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { signOutUser } from "@/lib/actions/user.actions";
 
-import { UserIcon } from "lucide-react";
+import { UserIcon, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 const UserButton = async () => {
@@ -50,6 +51,30 @@ const UserButton = async () => {
               </p>
             </div>
           </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {session.user?.role === "admin" && (
+            <DropdownMenuItem className="p-0">
+              <Link href="/admin/dashboard" className="w-full">
+                <Button
+                  className="justify-start w-full py-4 px-2 h-4"
+                  variant="ghost"
+                >
+                  <ShieldCheck className="mr-2 h-4 w-4" />
+                  Admin Panel
+                </Button>
+              </Link>
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem className="p-0">
+            <Link href="/user/orders" className="w-full">
+              <Button
+                className="justify-start w-full py-4 px-2 h-4"
+                variant="ghost"
+              >
+                My Orders
+              </Button>
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem className="p-0 mb-1">
             <form className="w-full" action={signOutUser}>
               <Button
