@@ -33,10 +33,12 @@
 }
 
 @layer utilities {
+  /* Improved spacing scale - 8px grid system */
   .wrapper {
-    @apply w-full max-w-7xl p-5 md:px-10 lg:mx-auto;
+    @apply w-full max-w-6xl px-4 md:px-6 lg:px-8 mx-auto;
   }
   
+  /* Consistent flex utilities */
   .flex-start {
     @apply flex items-center justify-start;
   }
@@ -49,16 +51,21 @@
     @apply flex items-center justify-between;
   }
   
+  /* Improved typography scale - Modern Minimalist */
   .h1-bold {
-    @apply text-3xl font-bold lg:text-4xl;
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight;
   }
   
   .h2-bold {
-    @apply text-2xl font-bold lg:text-3xl;
+    @apply text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight;
   }
   
   .h3-bold {
-    @apply text-xl font-bold lg:text-2xl;
+    @apply text-xl md:text-2xl lg:text-3xl font-bold;
+  }
+  
+  .text-balance {
+    text-wrap: balance;
   }
 }
 
@@ -115,38 +122,60 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  /* Modern Minimalist - Navy & Amber Theme */
+  --radius: 0.75rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  
+  /* Primary: Deep Navy - Trust & Professionalism */
+  --primary: oklch(0.25 0.08 240);
+  --primary-foreground: oklch(1 0 0);
+  
+  /* Accent: Warm Amber - Call-to-Action & Urgency */
+  --accent: oklch(0.70 0.18 60);
+  --accent-foreground: oklch(0.15 0.04 240);
+  
+  /* Secondary: Light background for cards */
+  --secondary: oklch(0.96 0.005 240);
+  --secondary-foreground: oklch(0.25 0.08 240);
+  
+  /* Muted: Subtle backgrounds and text */
+  --muted: oklch(0.96 0.005 240);
+  --muted-foreground: oklch(0.55 0.04 240);
+  
+  /* Success: Forest Green */
+  --success: oklch(0.65 0.20 145);
+  --success-foreground: oklch(1 0 0);
+  
+  /* Destructive: Rich Red */
+  --destructive: oklch(0.60 0.25 25);
+  --destructive-foreground: oklch(1 0 0);
+  
+  /* Border & Input */
+  --border: oklch(0.90 0.01 240);
+  --input: oklch(0.90 0.01 240);
+  --ring: oklch(0.25 0.08 240);
+  
+  /* Charts */
+  --chart-1: oklch(0.70 0.18 60);
+  --chart-2: oklch(0.60 0.20 145);
+  --chart-3: oklch(0.55 0.25 235);
+  --chart-4: oklch(0.65 0.15 320);
+  --chart-5: oklch(0.60 0.25 25);
+  
+  /* Sidebar */
   --sidebar: oklch(0.984 0.003 247.858);
   --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --sidebar-primary: oklch(0.25 0.08 240);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.96 0.005 240);
+  --sidebar-accent-foreground: oklch(0.25 0.08 240);
+  --sidebar-border: oklch(0.90 0.01 240);
+  --sidebar-ring: oklch(0.25 0.08 240);
 }
 
 .dark {
@@ -190,5 +219,39 @@
   
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* Custom animations for Modern Minimalist design */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  
+  @keyframes pulse-scale {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+  
+  .animate-pulse-scale {
+    animation: pulse-scale 2s ease-in-out infinite;
+  }
+  
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out;
   }
 }
