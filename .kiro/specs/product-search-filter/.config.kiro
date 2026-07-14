@@ -1,0 +1,99 @@
+{
+  "spec": {
+    "name": "Product Search & Filtering",
+    "version": "1.0.0",
+    "status": "planned",
+    "priority": "medium",
+    "estimatedHours": 28,
+    "owner": "",
+    "tags": ["feature", "search", "filtering", "ux", "discovery"]
+  },
+  "documentation": {
+    "requirements": "requirements.md",
+    "design": "design.md",
+    "tasks": "tasks.md",
+    "quickStart": "GETTING-STARTED.md",
+    "summary": ".plan-summary.md"
+  },
+  "implementation": {
+    "phases": [
+      {
+        "name": "Backend Foundation",
+        "status": "pending",
+        "estimatedHours": 3,
+        "files": ["lib/actions/product.actions.ts"]
+      },
+      {
+        "name": "Main Shop Page",
+        "status": "pending",
+        "estimatedHours": 2,
+        "files": ["app/(root)/shop/page.tsx"]
+      },
+      {
+        "name": "Search Component",
+        "status": "pending",
+        "estimatedHours": 1.5,
+        "files": [
+          "components/shared/product/search-bar.tsx"
+        ]
+      },
+      {
+        "name": "Filter Components",
+        "status": "pending",
+        "estimatedHours": 6,
+        "files": [
+          "components/shared/product/product-filters.tsx",
+          "components/shared/product/product-filters-mobile.tsx",
+          "components/shared/product/category-filter.tsx",
+          "components/shared/product/brand-filter.tsx",
+          "components/shared/product/price-range-filter.tsx",
+          "components/shared/product/stock-filter.tsx",
+          "components/shared/product/filter-item.tsx"
+        ]
+      },
+      {
+        "name": "Sort & Display",
+        "status": "pending",
+        "estimatedHours": 2,
+        "files": [
+          "components/shared/product/product-sort.tsx",
+          "components/shared/product/active-filters.tsx"
+        ]
+      },
+      {
+        "name": "Pagination",
+        "status": "pending",
+        "estimatedHours": 2,
+        "files": ["components/shared/pagination.tsx"]
+      },
+      {
+        "name": "Polish & Testing",
+        "status": "pending",
+        "estimatedHours": 6,
+        "files": ["multiple"]
+      },
+      {
+        "name": "Documentation",
+        "status": "pending",
+        "estimatedHours": 0.5,
+        "files": ["README.md", "PROJECT-STATUS.md"]
+      }
+    ]
+  },
+  "dependencies": {
+    "required": [
+      "Next.js 13+",
+      "Prisma",
+      "PostgreSQL",
+      "shadcn/ui components",
+      "React Hook Form",
+      "Zod"
+    ],
+    "optional": []
+  },
+  "testing": {
+    "manual": true,
+    "automated": false,
+    "e2e": false
+  }
+}
