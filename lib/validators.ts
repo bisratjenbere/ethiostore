@@ -19,7 +19,13 @@ export const insertProductSchema = z.object({
     .string()
     .min(3, "Description must be at least 10 characters long"),
   stock: z.coerce.number(),
-  images: z.array(z.string().min(1, "At least one image is required")),
+  images: z
+    .array(z.string().trim().min(1, "Image URL cannot be empty"))
+    .min(1, "At least one image is required")
+    .refine(
+      (images) => images.every((img) => img.startsWith('/') || img.startsWith('http')),
+      "All images must be valid URLs (starting with / or http)"
+    ),
   isFeatured: z.boolean(),
   banner: z.string().optional().nullable(),
   price: currency,
@@ -89,7 +95,6 @@ export const paymentMethodSchema = z
     path: ["path"],
     message: "Invalid payment method",
   });
-
 export const insertOrderSchema = z.object({
   userId: z.string().min(1, "Useris Required"),
   itemsPrice: currency,
@@ -101,7 +106,6 @@ export const insertOrderSchema = z.object({
     .refine((val) => PAYMENT_METHODS.includes(val), "Invalid payment method"),
   shippingAddress: shippingAddressSchema,
 });
-
 export const insertOrderItemSchema = z.object({
   productId: z.string(),
   slug: z.string(),
@@ -113,7 +117,7 @@ export const insertOrderItemSchema = z.object({
 
 export const insertReviewSchema = z.object({
   productId: z.string().min(1, "Product is required"),
-  rating: z.number().int().min(1, "Rating required").max(5),
+  rating: z.coerce.number().int().min(1, "Rating required").max(5),
   title: z.string().min(3, "Title must be at least 3 characters"),
   comment: z.string().min(10, "Review must be at least 10 characters"),
 });

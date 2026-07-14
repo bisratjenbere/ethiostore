@@ -1,41 +1,54 @@
 "use server";
 import { prisma } from "@/db/prisma";
+import { Prisma } from "@/lib/generated/prisma/client";
 import { convertToPlainObject } from "../utils";
 import { LATEST_PRODUCT_LIMIT } from "../constants";
 
-export async function getLatestProducts() {
-  const data = await prisma.product.findMany({
-    take: LATEST_PRODUCT_LIMIT,
-    orderBy: { createdAt: "desc" },
-  });
-  return convertToPlainObject(data);
-}
+// Types for search and filtering
+export type SortField = "price" | "name" | "createdAt" | "rating";
+export type SortOrder = "asc" | "desc";
 
-export async function getProductBySlug(slug: string) {
-  return await prisma.product.findFirst({ where: { slug } });
-}
-
-export type CategoryCount = { category: string; count: number };
-export type BrandCount = { brand: string; count: number };
-
-type SortBy = "createdAt" | "price" | "name" | "rating";
-type SortOrder = "asc" | "desc";
-
-interface SearchProductsParams {
+export interface SearchProductsParams {
   query?: string;
   category?: string;
   brand?: string;
   minPrice?: string;
   maxPrice?: string;
   inStock?: boolean;
-  sortBy?: SortBy;
+  sortBy?: SortField;
   order?: SortOrder;
   page?: number;
   limit?: number;
 }
 
-const PAGE_SIZE = 12;
+export interface CategoryCount {
+  category: string;
+  count: number;
+}
 
+export interface BrandCount {
+  brand: string;
+  count: number;
+}
+
+//get latest products
+export async function getLatestProducts() {
+  const data = await prisma.product.findMany({
+    take: LATEST_PRODUCT_LIMIT,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  return convertToPlainObject(data);
+}
+
+export async function getProductBySlug(slug: string) {
+  return await prisma.product.findFirst({
+    where: { slug: slug },
+  });
+}
+
+// Main search and filter function
 export async function searchProducts(params: SearchProductsParams = {}) {
   try {
     const {
@@ -48,85 +61,190 @@ export async function searchProducts(params: SearchProductsParams = {}) {
       sortBy = "createdAt",
       order = "desc",
       page = 1,
-      limit = PAGE_SIZE,
+      limit = 12,
     } = params;
 
     // Build where clause
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = { isActive: true };
+    const whereConditions: Prisma.ProductWhereInput[] = [];
 
-    if (query) {
-      where.OR = [
-        { name: { contains: query, mode: "insensitive" } },
-        { description: { contains: query, mode: "insensitive" } },
-        { brand: { contains: query, mode: "insensitive" } },
-      ];
+    // Search query across multiple fields
+    if (query && query.trim()) {
+      whereConditions.push({
+        OR: [
+          { name: { contains: query.trim(), mode: "insensitive" } },
+          { description: { contains: query.trim(), mode: "insensitive" } },
+          { brand: { contains: query.trim(), mode: "insensitive" } },
+        ],
+      });
     }
-    if (category) where.category = { equals: category, mode: "insensitive" };
-    if (brand) where.brand = { equals: brand, mode: "insensitive" };
-    if (inStock) where.stock = { gt: 0 };
+
+    // Category filter
+    if (category && category !== "all") {
+      whereConditions.push({ category });
+    }
+
+    // Brand filter
+    if (brand && brand !== "all") {
+      whereConditions.push({ brand });
+    }
+
+    // Price range filter
     if (minPrice || maxPrice) {
-      where.price = {};
-      if (minPrice) where.price.gte = parseFloat(minPrice);
-      if (maxPrice) where.price.lte = parseFloat(maxPrice);
+      const priceFilter: Prisma.DecimalFilter = {};
+      if (minPrice) {
+        priceFilter.gte = minPrice;
+      }
+      if (maxPrice) {
+        priceFilter.lte = maxPrice;
+      }
+      whereConditions.push({ price: priceFilter });
     }
 
-    const orderBy =
-      sortBy === "price"
-        ? { price: order }
-        : sortBy === "name"
-        ? { name: order }
-        : sortBy === "rating"
-        ? { rating: order }
-        : { createdAt: order };
+    // Stock filter
+    if (inStock) {
+      whereConditions.push({ stock: { gt: 0 } });
+    }
 
-    const [products, total, categoryGroups, brandGroups] = await Promise.all([
+    // Combine all conditions with AND
+    const where: Prisma.ProductWhereInput =
+      whereConditions.length > 0 ? { AND: whereConditions } : {};
+
+    // Build orderBy
+    const orderBy: Prisma.ProductOrderByWithRelationInput = {
+      [sortBy]: order,
+    };
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+
+    // Execute queries in parallel for better performance
+    const [products, total, categories, brands] = await Promise.all([
+      // Get products
       prisma.product.findMany({
         where,
         orderBy,
-        skip: (page - 1) * limit,
+        skip,
         take: limit,
       }),
+
+      // Get total count
       prisma.product.count({ where }),
+
+      // Get categories with counts (for filter UI)
       prisma.product.groupBy({
         by: ["category"],
         _count: { category: true },
-        orderBy: { _count: { category: "desc" } },
+        orderBy: { category: "asc" },
       }),
+
+      // Get brands with counts (for filter UI)
       prisma.product.groupBy({
         by: ["brand"],
         _count: { brand: true },
-        orderBy: { _count: { brand: "desc" } },
+        orderBy: { brand: "asc" },
       }),
     ]);
 
-    const categories: CategoryCount[] = categoryGroups.map((g) => ({
-      category: g.category,
-      count: g._count.category,
+    // Format results
+    const formattedProducts = products.map((product) =>
+      convertToPlainObject({
+        ...product,
+        price: product.price.toString(),
+        rating: product.rating.toString(),
+        images: Array.isArray(product.images)
+          ? product.images.filter(
+              (img): img is string => typeof img === "string" && img.length > 0
+            )
+          : [],
+      })
+    );
+
+    const formattedCategories: CategoryCount[] = categories.map((c) => ({
+      category: c.category,
+      count: c._count.category,
     }));
 
-    const brands: BrandCount[] = brandGroups.map((g) => ({
-      brand: g.brand,
-      count: g._count.brand,
+    const formattedBrands: BrandCount[] = brands.map((b) => ({
+      brand: b.brand,
+      count: b._count.brand,
     }));
 
     return {
       success: true,
       data: {
-        products: convertToPlainObject(
-          products.map((p) => ({ ...p, price: p.price.toString(), rating: p.rating.toString() }))
-        ),
+        products: formattedProducts,
         total,
         pages: Math.ceil(total / limit),
         currentPage: page,
-        categories,
-        brands,
+        categories: formattedCategories,
+        brands: formattedBrands,
       },
     };
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Failed to search products",
+      message: error instanceof Error ? error.message : "Search failed",
+      data: {
+        products: [],
+        total: 0,
+        pages: 0,
+        currentPage: 1,
+        categories: [],
+        brands: [],
+      },
     };
+  }
+}
+
+// Get all categories with counts
+export async function getAllCategories() {
+  try {
+    const categories = await prisma.product.groupBy({
+      by: ["category"],
+      _count: { category: true },
+      orderBy: { category: "asc" },
+    });
+
+    return categories.map((c) => ({
+      name: c.category,
+      count: c._count.category,
+    }));
+  } catch (error) {
+    return [];
+  }
+}
+
+// Get all brands with counts
+export async function getAllBrands() {
+  try {
+    const brands = await prisma.product.groupBy({
+      by: ["brand"],
+      _count: { brand: true },
+      orderBy: { brand: "asc" },
+    });
+
+    return brands.map((b) => ({
+      name: b.brand,
+      count: b._count.brand,
+    }));
+  } catch (error) {
+    return [];
+  }
+}
+
+// Get price range distribution
+export async function getPriceRanges() {
+  try {
+    const prices = await prisma.product.aggregate({
+      _min: { price: true },
+      _max: { price: true },
+    });
+
+    return {
+      min: Number(prices._min.price || 0),
+      max: Number(prices._max.price || 0),
+    };
+  } catch (error) {
+    return { min: 0, max: 0 };
   }
 }
