@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, Loader, Package } from "lucide-react";
 import Link from "next/link";
 import { getStripeCheckoutSession } from "@/lib/actions/stripe.actions";
-import { clearGuestCheckoutData } from "@/lib/actions/guest-checkout.actions";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,9 +22,6 @@ async function OrderSuccessContent({
   if (!sessionId) {
     redirect("/");
   }
-
-  // Clear guest checkout cookie if present
-  await clearGuestCheckoutData();
 
   // Retrieve and verify the checkout session
   const sessionResult = await getStripeCheckoutSession(sessionId);

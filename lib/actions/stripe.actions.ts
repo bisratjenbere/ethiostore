@@ -67,18 +67,39 @@ export async function createStripeCheckoutSession(orderId: string) {
     }
 
     // 4. Prepare line items for Stripe
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = order.orderItems.map((item) => ({
-      price_data: {
-        currency: "usd",
-        product_data: {
-          name: item.name,
-          images: item.product.images.length > 0 ? [item.product.images[0]] : [],
-          description: `Quantity: ${item.qty}`,
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = order.orderItems.map((item) => {
+      // Convert relative image paths to absolute URLs for Stripe
+      let imageUrl: string | undefined;
+      if (item.product.images.length > 0) {
+        const image = item.product.images[0];
+        // If image is already an absolute URL (http/https), use it as-is
+        if (image.startsWith('http://') || image.startsWith('https://')) {
+          imageUrl = image;
+        } 
+        // If it's a relative path, convert to absolute URL
+        else if (image.startsWith('/')) {
+          imageUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}${image}`;
+        }
+        // Otherwise it might be a Cloudinary URL or other format, try to use it
+        else {
+          imageUrl = image;
+        }
+      }
+
+      return {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: item.name,
+            // Only include images if we have a valid absolute URL
+            images: imageUrl ? [imageUrl] : [],
+            description: `Quantity: ${item.qty}`,
+          },
+          unit_amount: Math.round(Number(item.price) * 100), // Convert to cents
         },
-        unit_amount: Math.round(Number(item.price) * 100), // Convert to cents
-      },
-      quantity: item.qty,
-    }));
+        quantity: item.qty,
+      };
+    });
 
     // Add shipping as a line item
     if (Number(order.shippingPrice) > 0) {

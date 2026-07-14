@@ -1,7 +1,8 @@
 import { APP_NAME } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
-import React, { Children } from "react";
+import React from "react";
+import Menu from "@/components/shared/header/menu";
 
 const UserLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -14,11 +15,11 @@ const UserLayout = ({ children }: { children: React.ReactNode }) => {
                 src="/images/logo.svg"
                 height={48}
                 width={48}
-                alt={`${APP_NAME} Logos`}
+                alt={`${APP_NAME} Logo`}
               />
             </Link>
             <div className="flex ml-auto space-x-4 items-center">
-              <p>Menu INjected Here</p>
+              <Menu />
             </div>
           </div>
           <div className="flex-1 space-y-4 mx-auto container p-8 pt-6">
