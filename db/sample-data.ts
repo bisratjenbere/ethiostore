@@ -7,13 +7,19 @@ enum Role {
 const sampleData = {
   users: [
     {
-      name: "John",
+      name: "Admin User",
       email: "admin@example.com",
+      password: hashSync("123456", 10),
+      role: Role.ADMIN,
+    },
+    {
+      name: "John Doe",
+      email: "john@example.com",
       password: hashSync("123456", 10),
       role: Role.USER,
     },
     {
-      name: "Jane",
+      name: "Jane Smith",
       email: "jane@example.com",
       password: hashSync("123456", 10),
       role: Role.USER,
