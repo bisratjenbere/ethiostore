@@ -47,6 +47,8 @@ next-env.d.ts
 *.md
 !README.md
 .kiro/
+*.txt
+*.sh
 FULL_RECOVERY_STATUS.md
 QUICK_RECOVERY_GUIDE.md
 RECOVERY_FINAL_SUMMARY.md
