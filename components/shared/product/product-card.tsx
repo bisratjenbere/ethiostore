@@ -12,22 +12,22 @@ const ProductCard = ({ product }: { product: Product }) => {
     <Card className="group h-full overflow-hidden hover:shadow-2xl transition-all duration-300 border-0 shadow-md">
       {/* Image with Badges */}
       <CardHeader className="p-0 relative overflow-hidden">
-        {/* Badges - positioned on top of image */}
-        <div className="absolute top-3 left-0 right-0 z-10 flex items-start justify-between px-3 gap-2">
+        {/* Badges - stacked vertically on top of image */}
+        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1.5">
           {product.isFeatured && (
-            <Badge className="bg-accent text-accent-foreground hover:bg-accent/90 text-xs whitespace-nowrap shadow-lg">
+            <Badge className="bg-accent text-accent-foreground hover:bg-accent/90 text-[10px] sm:text-xs py-0.5 px-2 w-fit shadow-lg whitespace-nowrap">
               Featured
             </Badge>
           )}
           
           {product.stock! > 0 && product.stock! < 10 && (
-            <Badge variant="destructive" className="text-xs whitespace-nowrap ml-auto shadow-lg">
-              Only {product.stock} left!
+            <Badge variant="destructive" className="text-[10px] sm:text-xs py-0.5 px-2 w-fit shadow-lg whitespace-nowrap">
+              {product.stock} left
             </Badge>
           )}
         </div>
         
-        {/* Image */}
+        {/* Image - square aspect ratio matching product detail page */}
         <Link href={`/product/${product.slug}`}>
           <div className="relative aspect-square bg-muted/30">
             <Image
@@ -35,14 +35,14 @@ const ProductCard = ({ product }: { product: Product }) => {
               alt={product.name}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           </div>
         </Link>
       </CardHeader>
       
       {/* Content */}
-      <CardContent className="p-4 md:p-6 space-y-2 md:space-y-3">
+      <CardContent className="p-4 space-y-2">
         {/* Brand */}
         <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
           {product.brand}
@@ -56,7 +56,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         </Link>
         
         {/* Rating */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <Star

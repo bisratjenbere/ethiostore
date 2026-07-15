@@ -19,7 +19,7 @@ export async function createOrder() {
     let paymentMethod: string;
 
     if (isGuest) {
-      // --- Guest flow ---
+     
       const guestData = await getGuestCheckoutData();
       if (!guestData?.address) throw new Error("Shipping address is required");
       if (!guestData?.paymentMethod) throw new Error("Payment method is required");
@@ -43,7 +43,7 @@ export async function createOrder() {
       }
       userId = guestUser.id;
     } else {
-      // --- Authenticated flow ---
+      
       userId = session.user.id!;
       const user = await prisma.user.findFirst({ where: { id: userId } });
       if (!user) throw new Error("User not found");

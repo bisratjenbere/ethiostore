@@ -1,12 +1,10 @@
 import ProductList from "@/components/shared/product/product-list";
 import { getLatestProducts } from "@/lib/actions/product.actions";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Truck, Shield, Headphones, ArrowRight } from "lucide-react";
 
 // NEW: Import homepage components
-import PromotionalBanner from "@/components/shared/homepage/promotional-banner";
 import FeaturedCategories from "@/components/shared/homepage/featured-categories";
 import SocialProof from "@/components/shared/homepage/social-proof";
 import NewsletterSignup from "@/components/shared/homepage/newsletter-signup";
@@ -21,22 +19,16 @@ const HomePage = async () => {
   
   return (
     <>
-      {/* NEW: Promotional Banner */}
-      <PromotionalBanner />
-      
       <div className="space-y-16 md:space-y-24">
         {/* Hero Section */}
         <section className="relative py-12 md:py-20">
           <div className="wrapper">
             <div className="max-w-3xl mx-auto text-center space-y-6">
-              <Badge className="mx-auto bg-accent text-accent-foreground hover:bg-accent/90">
-                New Arrivals
-              </Badge>
               <h1 className="h1-bold text-balance">
                 Discover Premium Products for Your Lifestyle
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground text-balance max-w-2xl mx-auto">
-                Shop our curated collection of high-quality products with free shipping on orders over $100
+                Shop our curated collection of high-quality products with free shipping on orders over 3000 Birr
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                 <Button size="lg" asChild className="group">
@@ -67,7 +59,7 @@ const HomePage = async () => {
                 <div>
                   <h3 className="font-semibold mb-1">Free Shipping</h3>
                   <p className="text-sm text-muted-foreground">
-                    On orders over $100
+                    On orders over 3000 Birr
                   </p>
                 </div>
               </div>

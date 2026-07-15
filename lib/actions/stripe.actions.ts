@@ -88,7 +88,7 @@ export async function createStripeCheckoutSession(orderId: string) {
 
       return {
         price_data: {
-          currency: "usd",
+          currency: "etb", // Ethiopian Birr
           product_data: {
             name: item.name,
             // Only include images if we have a valid absolute URL
@@ -105,7 +105,7 @@ export async function createStripeCheckoutSession(orderId: string) {
     if (Number(order.shippingPrice) > 0) {
       lineItems.push({
         price_data: {
-          currency: "usd",
+          currency: "etb", // Ethiopian Birr
           product_data: {
             name: "Shipping",
             description: "Standard shipping",
@@ -120,7 +120,7 @@ export async function createStripeCheckoutSession(orderId: string) {
     if (Number(order.taxPrice) > 0) {
       lineItems.push({
         price_data: {
-          currency: "usd",
+          currency: "etb", // Ethiopian Birr
           product_data: {
             name: "Tax",
             description: "Sales tax",

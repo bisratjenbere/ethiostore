@@ -117,7 +117,7 @@ export const insertOrderItemSchema = z.object({
 
 export const insertReviewSchema = z.object({
   productId: z.string().min(1, "Product is required"),
-  rating: z.coerce.number().int().min(1, "Rating required").max(5),
+  rating: z.number().int().min(1, "Rating required").max(5),
   title: z.string().min(3, "Title must be at least 3 characters"),
   comment: z.string().min(10, "Review must be at least 10 characters"),
 });

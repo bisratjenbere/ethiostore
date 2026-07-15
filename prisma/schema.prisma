@@ -17,6 +17,7 @@ model Product {
   name        String
   slug        String      @unique(map: "product_slug_idx")
   category    String
+  categoryId  String?     @db.Uuid
   images      String[]
   brand       String
   description String
@@ -31,10 +32,27 @@ model Product {
   updatedAt   DateTime    @updatedAt @db.Timestamp(6)
   orderItems  OrderItem[]
   reviews     Review[]
+  categoryRel Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@index([category])
+  @@index([categoryId])
   @@index([brand])
   @@index([stock])
+}
+
+model Category {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  image       String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamp(6)
+  products    Product[]
+
+  @@index([slug])
+  @@index([isActive])
 }
 
 model User {

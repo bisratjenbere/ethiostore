@@ -7,6 +7,7 @@ import {
   ShoppingCart,
   Package,
   Users,
+  FolderTree,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
@@ -26,6 +27,11 @@ const navItems = [
     title: "Products",
     href: "/admin/products",
     icon: Package,
+  },
+  {
+    title: "Categories",
+    href: "/admin/categories",
+    icon: FolderTree,
   },
   {
     title: "Users",

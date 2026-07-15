@@ -16,12 +16,34 @@ import { ArrowRight, Loader, Minus, Plus, ShoppingBag, Trash2, Truck } from "luc
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 const CartTable = ({ cart }: { cart?: Cart }) => {
-  const [isPending, startTransition] = useTransition();
+  const [checkoutPending, startCheckoutTransition] = useTransition();
+  const [loadingItems, setLoadingItems] = useState<Record<string, 'inc' | 'dec' | 'del'>>({});
   const router = useRouter();
+  
+  // Helper to handle cart actions with individual loading states
+  const handleCartAction = async (
+    productId: string, 
+    action: 'inc' | 'dec' | 'del',
+    callback: () => Promise<any>
+  ) => {
+    setLoadingItems(prev => ({ ...prev, [productId]: action }));
+    try {
+      const res = await callback();
+      if (res && !res.success) {
+        toast.error(res.message);
+      }
+    } finally {
+      setLoadingItems(prev => {
+        const newState = { ...prev };
+        delete newState[productId];
+        return newState;
+      });
+    }
+  };
   
   // Empty state
   if (!cart || cart.items.length === 0) {
@@ -50,7 +72,7 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
   }
   
   // Calculate free shipping progress
-  const FREE_SHIPPING_THRESHOLD = 100;
+  const FREE_SHIPPING_THRESHOLD = 3000;
   const itemsPrice = Number(cart.itemsPrice);
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - itemsPrice);
   const progress = Math.min((itemsPrice / FREE_SHIPPING_THRESHOLD) * 100, 100);
@@ -110,20 +132,17 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                           <TableCell>
                             <div className="flex items-center justify-center gap-2">
                               <Button
-                                disabled={isPending}
+                                disabled={!!loadingItems[item.productId]}
                                 variant="outline"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() => {
-                                  startTransition(async () => {
-                                    const res = await removeItemFromCart(item.productId);
-                                    if (!res.success) {
-                                      toast.error(res.message);
-                                    }
-                                  });
-                                }}
+                                onClick={() => handleCartAction(
+                                  item.productId,
+                                  'dec',
+                                  () => removeItemFromCart(item.productId)
+                                )}
                               >
-                                {isPending ? (
+                                {loadingItems[item.productId] === 'dec' ? (
                                   <Loader className="h-4 w-4 animate-spin" />
                                 ) : (
                                   <Minus className="h-4 w-4" />
@@ -131,18 +150,17 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                               </Button>
                               <span className="w-8 text-center font-medium">{item.qty}</span>
                               <Button
-                                disabled={isPending}
+                                disabled={!!loadingItems[item.productId]}
                                 variant="outline"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={() => {
-                                  startTransition(async () => {
-                                    const res = await addItemToCart(item);
-                                    if (!res.success) toast.error(res.message);
-                                  });
-                                }}
+                                onClick={() => handleCartAction(
+                                  item.productId,
+                                  'inc',
+                                  () => addItemToCart(item)
+                                )}
                               >
-                                {isPending ? (
+                                {loadingItems[item.productId] === 'inc' ? (
                                   <Loader className="h-4 w-4 animate-spin" />
                                 ) : (
                                   <Plus className="h-4 w-4" />
@@ -155,20 +173,25 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                           </TableCell>
                           <TableCell>
                             <Button
-                              disabled={isPending}
+                              disabled={!!loadingItems[item.productId]}
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-destructive hover:text-destructive"
-                              onClick={() => {
-                                startTransition(async () => {
-                                  // Remove all quantity
+                              onClick={() => handleCartAction(
+                                item.productId,
+                                'del',
+                                async () => {
                                   for (let i = 0; i < item.qty; i++) {
                                     await removeItemFromCart(item.productId);
                                   }
-                                });
-                              }}
+                                }
+                              )}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              {loadingItems[item.productId] === 'del' ? (
+                                <Loader className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -205,49 +228,61 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Button
-                              disabled={isPending}
+                              disabled={!!loadingItems[item.productId]}
                               variant="outline"
                               size="icon"
                               className="h-8 w-8"
-                              onClick={() => {
-                                startTransition(async () => {
-                                  const res = await removeItemFromCart(item.productId);
-                                  if (!res.success) toast.error(res.message);
-                                });
-                              }}
+                              onClick={() => handleCartAction(
+                                item.productId,
+                                'dec',
+                                () => removeItemFromCart(item.productId)
+                              )}
                             >
-                              <Minus className="h-4 w-4" />
+                              {loadingItems[item.productId] === 'dec' ? (
+                                <Loader className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Minus className="h-4 w-4" />
+                              )}
                             </Button>
                             <span className="w-8 text-center font-medium">{item.qty}</span>
                             <Button
-                              disabled={isPending}
+                              disabled={!!loadingItems[item.productId]}
                               variant="outline"
                               size="icon"
                               className="h-8 w-8"
-                              onClick={() => {
-                                startTransition(async () => {
-                                  const res = await addItemToCart(item);
-                                  if (!res.success) toast.error(res.message);
-                                });
-                              }}
+                              onClick={() => handleCartAction(
+                                item.productId,
+                                'inc',
+                                () => addItemToCart(item)
+                              )}
                             >
-                              <Plus className="h-4 w-4" />
+                              {loadingItems[item.productId] === 'inc' ? (
+                                <Loader className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Plus className="h-4 w-4" />
+                              )}
                             </Button>
                           </div>
                           <Button
-                            disabled={isPending}
+                            disabled={!!loadingItems[item.productId]}
                             variant="ghost"
                             size="sm"
                             className="text-destructive hover:text-destructive"
-                            onClick={() => {
-                              startTransition(async () => {
+                            onClick={() => handleCartAction(
+                              item.productId,
+                              'del',
+                              async () => {
                                 for (let i = 0; i < item.qty; i++) {
                                   await removeItemFromCart(item.productId);
                                 }
-                              });
-                            }}
+                              }
+                            )}
                           >
-                            <Trash2 className="h-4 w-4 mr-1" />
+                            {loadingItems[item.productId] === 'del' ? (
+                              <Loader className="h-4 w-4 animate-spin mr-1" />
+                            ) : (
+                              <Trash2 className="h-4 w-4 mr-1" />
+                            )}
                             Remove
                           </Button>
                         </div>
@@ -331,16 +366,16 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                       <span className="text-2xl font-bold">{FormatCurrency(cart.totalPrice)}</span>
                     </div>
                     <Button
-                      disabled={isPending}
+                      disabled={checkoutPending || Object.keys(loadingItems).length > 0}
                       onClick={() =>
-                        startTransition(() => {
+                        startCheckoutTransition(() => {
                           router.push("/shipping-address");
                         })
                       }
                       className="w-full"
                       size="lg"
                     >
-                      {isPending ? (
+                      {checkoutPending ? (
                         <Loader className="animate-spin h-4 w-4 mr-2" />
                       ) : (
                         <ArrowRight className="h-4 w-4 mr-2" />

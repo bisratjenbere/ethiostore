@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "@/assets/styles/globals.css";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import SessionProviderWrapper from "@/components/shared/auth/session-provider-wrapper";
 
 import { APP_NAME, APP_DESCRIPTION, APP_URL } from "@/lib/constants";
 
@@ -27,14 +28,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>
-        <ThemeProvider
-          defaultTheme="dark"
-          attribute="class"
-          disableTransitionOnChange
-          enableSystem
-        >
-          {children}
-        </ThemeProvider>
+        <SessionProviderWrapper>
+          <ThemeProvider
+            defaultTheme="dark"
+            attribute="class"
+            disableTransitionOnChange
+            enableSystem
+          >
+            {children}
+          </ThemeProvider>
+        </SessionProviderWrapper>
         <Toaster />
       </body>
     </html>

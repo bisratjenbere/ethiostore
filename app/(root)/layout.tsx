@@ -9,8 +9,11 @@ export default function RootLayout({
 }>) {
   return (
     <div className="flex h-screen flex-col">
-      <PromotionalBanner />
-      <Header />
+      {/* Sticky navigation wrapper */}
+      <div className="sticky top-0 z-50">
+        <PromotionalBanner />
+        <Header />
+      </div>
       <main className="flex-1 wrapper">{children}</main>
       <Footer />
     </div>

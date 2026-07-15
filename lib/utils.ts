@@ -48,17 +48,17 @@ export function getNormalizedName(user: any) {
   return user.name;
 }
 
-const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
-  currency: "USD",
+const CURRENCY_FORMATTER = new Intl.NumberFormat("en-ET", {
+  currency: "ETB",
   style: "currency",
   minimumFractionDigits: 2,
 });
 
 export function FormatCurrency(amount: number | string | null) {
   if (typeof amount === "number") {
-    return CURRENCY_FORMATTER.format(amount);
+    return CURRENCY_FORMATTER.format(amount).replace('ETB', 'Birr');
   } else if (typeof amount === "string") {
-    return CURRENCY_FORMATTER.format(Number(amount));
+    return CURRENCY_FORMATTER.format(Number(amount)).replace('ETB', 'Birr');
   } else {
     return "NaN";
   }

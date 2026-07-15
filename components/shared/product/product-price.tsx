@@ -11,7 +11,7 @@ const ProductPrice = ({
   const [int, decimal] = stringValue.split(".");
   return (
     <p className={cn(claseName)}>
-      <span className="text-xs align-super">$</span>
+      <span className="text-xs align-super">Birr </span>
       {int}
       <span className="text-xs align-super">{decimal}</span>
     </p>
