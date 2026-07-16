@@ -2,14 +2,48 @@ import ProductImages from "@/components/shared/product/product-images";
 import ProductPrice from "@/components/shared/product/product-price";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import AddToCart from "@/components/shared/product/add-to-cart";
+import AddToCartWrapper from "@/components/shared/product/add-to-cart-wrapper";
 import ReviewSection from "@/components/shared/product/review-section";
 import { notFound } from "next/navigation";
-import { getProductBySlug } from "@/lib/actions/product.actions";
-import { getMyCart } from "@/lib/actions/cart.actions";
+import { getProductBySlug, getAllProductSlugs } from "@/lib/actions/product.actions";
 import { ChevronRight, Package, Star, Truck } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { Metadata } from "next";
+import { APP_NAME } from "@/lib/constants";
+
+// Enable ISR with 5 minute revalidation
+export const revalidate = 300;
+
+// Generate metadata for SEO
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const product = await getProductBySlug(params.slug);
+  
+  if (!product) {
+    return {
+      title: "Product Not Found",
+    };
+  }
+  
+  return {
+    title: `${product.name} - ${APP_NAME}`,
+    description: product.description,
+    openGraph: {
+      title: product.name,
+      description: product.description,
+      images: product.images && product.images.length > 0 ? [product.images[0] as string] : [],
+    },
+  };
+}
+
+// Pre-generate top products at build time
+export async function generateStaticParams() {
+  const slugs = await getAllProductSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
 
 const ProductDetailsPage = async (props: {
   params: Promise<{ slug: string }>;
@@ -18,8 +52,6 @@ const ProductDetailsPage = async (props: {
   const { slug } = params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
-
-  const cart = await getMyCart();
   const rating = Number(product.rating);
 
   return (
@@ -152,8 +184,7 @@ const ProductDetailsPage = async (props: {
 
                 {product.stock! > 0 && (
                   <div className="pt-2" data-buy-button>
-                    <AddToCart
-                      cart={cart}
+                    <AddToCartWrapper
                       item={{
                         productId: product.id,
                         name: product.name,

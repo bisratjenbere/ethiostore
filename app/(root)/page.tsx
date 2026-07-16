@@ -14,6 +14,10 @@ export const metadata = {
   title: "Home",
 };
 
+// ✅ ENABLE ISR: Revalidate homepage every 60 seconds
+// This enables static generation with automatic updates
+export const revalidate = 60;
+
 const HomePage = async () => {
   const latestProduct = await getLatestProducts();
   

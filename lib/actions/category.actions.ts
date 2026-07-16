@@ -17,9 +17,7 @@ const categorySchema = z.object({
 
 export type CategoryInput = z.infer<typeof categorySchema>;
 
-/**
- * Get all categories
- */
+
 export async function getAllCategories() {
   try {
     const categories = await prisma.category.findMany({

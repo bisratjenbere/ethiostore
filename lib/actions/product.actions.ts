@@ -39,7 +39,29 @@ export async function getLatestProducts() {
       createdAt: "desc",
     },
   });
-  return convertToPlainObject(data);
+  
+  // Convert Decimal fields to strings for client compatibility
+  return convertToPlainObject(
+    data.map((product) => ({
+      ...product,
+      price: product.price.toString(),
+      rating: product.rating.toString(),
+    }))
+  );
+}
+
+// Get all product slugs for static generation (top 30 products)
+export async function getAllProductSlugs() {
+  const products = await prisma.product.findMany({
+    select: { slug: true },
+    orderBy: [
+      { isFeatured: "desc" },
+      { rating: "desc" },
+      { numReviews: "desc" },
+    ],
+    take: 30, // Pre-generate top 30 products at build time
+  });
+  return products.map((p) => p.slug);
 }
 
 export async function getProductBySlug(slug: string) {

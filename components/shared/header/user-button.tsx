@@ -1,4 +1,6 @@
-import { auth } from "@/auth";
+"use client";
+
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,13 +10,24 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { signOutUser } from "@/lib/actions/user.actions";
-
 import { UserIcon, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
-const UserButton = async () => {
-  const session = await auth();
+const UserButton = () => {
+  const { data: session, status } = useSession();
+
+  // Loading state - shows briefly during client-side hydration
+  if (status === "loading") {
+    return (
+      <div className="flex items-center">
+        <Skeleton className="h-8 w-20 rounded-md" />
+      </div>
+    );
+  }
+
+  // Not authenticated - show sign in button
   if (!session) {
     return (
       <div>
@@ -28,7 +41,9 @@ const UserButton = async () => {
     );
   }
 
+  // Authenticated - show user menu
   const captitalizedName = session.user?.name?.charAt(0).toUpperCase() ?? "";
+  
   return (
     <div className="flex gap-2 items-center">
       <DropdownMenu>
