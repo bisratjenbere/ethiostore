@@ -7,7 +7,6 @@ import { ZoomIn, Maximize2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogClose,
 } from "@/components/ui/dialog";
 
 const ProductImages = ({ images }: { images: string[] }) => {

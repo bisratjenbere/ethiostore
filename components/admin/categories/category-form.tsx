@@ -23,7 +23,6 @@ import { Loader } from "lucide-react";
 import {
   createCategory,
   updateCategory,
-  CategoryInput,
 } from "@/lib/actions/category.actions";
 
 const categorySchema = z.object({

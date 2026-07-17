@@ -10,7 +10,7 @@ interface FilterItemProps {
 
 export default function FilterItem({
   label,
-  value,
+  value: _value,
   count,
   selected,
   onClick,

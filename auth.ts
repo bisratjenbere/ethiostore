@@ -6,9 +6,7 @@ import { compareSync } from "bcrypt-ts";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { getNormalizedName } from "./lib/utils";
 import { updateUserNameInDb } from "./lib/actions/user.actions";
-import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { protectedPaths } from "./lib/constants";
 
 export const runtime = "nodejs";
 
@@ -118,15 +116,15 @@ const config = {
       });
       if (guestCart) {
         await prisma.$transaction(async (tx) => {
-          const userCart = await prisma.cart.findFirst({
+          const userCart = await tx.cart.findFirst({
             where: { userId: user.id },
           });
           if (userCart)
-            await prisma.cart.delete({
+            await tx.cart.delete({
               where: { id: userCart.id },
             });
 
-          await prisma.cart.update({
+          await tx.cart.update({
             where: { id: guestCart.id },
             data: { userId: user.id },
           });

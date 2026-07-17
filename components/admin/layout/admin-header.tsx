@@ -20,7 +20,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { UserIcon } from "lucide-react";
 import { signOutUser } from "@/lib/actions/user.actions";
 import type { Session } from "next-auth";
 

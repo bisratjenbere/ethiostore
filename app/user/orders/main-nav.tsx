@@ -6,10 +6,9 @@ import { usePathname } from "next/navigation";
 import React from "react";
 
 const MainNav = ({
-  className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) => {
-  const pathName = usePathname();
+  const _pathName = usePathname();
 
   return (
     <nav {...props}>

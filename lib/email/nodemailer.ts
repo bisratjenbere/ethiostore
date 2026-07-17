@@ -19,9 +19,9 @@ export const transporter = nodemailer.createTransport({
 
 // Verify connection configuration (only if credentials are provided)
 if (process.env.EMAIL_FROM && process.env.EMAIL_PASSWORD) {
-  transporter.verify((error, success) => {
-    if (error) {
-      console.error('❌ Email service error:', error);
+  transporter.verify((_error, _success) => {
+    if (_error) {
+      console.error('❌ Email service error:', _error);
     } else {
       console.log('✅ Email service is ready to send emails');
     }

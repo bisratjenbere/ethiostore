@@ -305,7 +305,6 @@ describe("Bug #1: Product Query Over-Fetching - Bug Condition Exploration", () =
       ).toHaveLength(0);
     }
   });
-});
 
 /**
  * Preservation Property Tests: Product Query Functionality

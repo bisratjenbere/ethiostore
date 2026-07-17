@@ -31,9 +31,7 @@ interface ReviewSectionProps {
 
 const ReviewSection = ({
   productId,
-  productSlug,
   avgRating,
-  numReviews,
 }: ReviewSectionProps) => {
   const { data: session, status } = useSession();
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -45,7 +43,7 @@ const ReviewSection = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   const isAuthenticated = status === "authenticated";
 
   // Fetch reviews and breakdown
@@ -71,10 +69,13 @@ const ReviewSection = ({
     }
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (status !== "loading") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchReviews(1);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId, status]);
 
   const handleOpenDialog = (review?: Review) => {

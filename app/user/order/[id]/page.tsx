@@ -31,7 +31,7 @@ const OrderDetailsPage = async (props: {
   let order;
   try {
     order = await getOrderById(id);
-  } catch (error) {
+  } catch (_error) {
     notFound();
   }
 

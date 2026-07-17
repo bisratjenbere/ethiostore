@@ -51,6 +51,7 @@ const ReviewForm = ({ productId, existingReview, onSuccess }: ReviewFormProps) =
     },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const rating = form.watch("rating");
 
   const onSubmit = (values: ReviewFormData) => {

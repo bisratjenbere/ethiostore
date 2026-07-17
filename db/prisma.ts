@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from "@/lib/generated/prisma/client";
+import { PrismaClient } from "@/lib/generated/prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import dotenv from "dotenv";
 

@@ -17,7 +17,7 @@ export default async function EditCategoryPage({
   let category;
   try {
     category = await getCategoryById(id);
-  } catch (error) {
+  } catch (_error) {
     notFound();
   }
 
