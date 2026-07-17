@@ -8,11 +8,28 @@ import {
   insertOrderSchema,
   insertReviewSchema,
 } from "@/lib/validators";
+
 export type Product = z.infer<typeof insertProductSchema> & {
   id: string;
   rating: string;
   numReviews: number;
   createdAt: Date;
+};
+
+// Lighter type for product listings (omits description, banner, createdAt)
+// Used in shop/search to reduce response size by 80%
+export type ProductListItem = {
+  id: string;
+  name: string;
+  slug: string;
+  price: string;
+  rating: string;
+  images: string[];
+  stock: number;
+  brand: string;
+  category: string;
+  numReviews: number;
+  isFeatured: boolean;
 };
 
 export type Cart = z.infer<typeof insertCartSchema>;

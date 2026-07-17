@@ -22,6 +22,56 @@ interface ProductFiltersProps {
   };
 }
 
+// FilterContent component extracted outside of render
+interface FilterContentProps {
+  categories: CategoryCount[];
+  brands: BrandCount[];
+  currentFilters: {
+    category?: string;
+    brand?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    inStock?: string;
+  };
+  updateFilter: (key: string, value: string | null) => void;
+  updatePriceRange: (min: string | null, max: string | null) => void;
+}
+
+function FilterContent({
+  categories,
+  brands,
+  currentFilters,
+  updateFilter,
+  updatePriceRange,
+}: FilterContentProps) {
+  return (
+    <div className="space-y-6">
+      <CategoryFilter
+        categories={categories}
+        selected={currentFilters.category}
+        onChange={(value) => updateFilter("category", value)}
+      />
+      
+      <BrandFilter
+        brands={brands}
+        selected={currentFilters.brand}
+        onChange={(value) => updateFilter("brand", value)}
+      />
+      
+      <PriceRangeFilter
+        currentMin={currentFilters.minPrice}
+        currentMax={currentFilters.maxPrice}
+        onChange={updatePriceRange}
+      />
+      
+      <StockFilter
+        checked={currentFilters.inStock === "true"}
+        onChange={(checked) => updateFilter("inStock", checked ? "true" : null)}
+      />
+    </div>
+  );
+}
+
 export default function ProductFilters({
   categories,
   brands,
@@ -65,33 +115,6 @@ export default function ProductFilters({
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const FilterContent = () => (
-    <div className="space-y-6">
-      <CategoryFilter
-        categories={categories}
-        selected={currentFilters.category}
-        onChange={(value) => updateFilter("category", value)}
-      />
-      
-      <BrandFilter
-        brands={brands}
-        selected={currentFilters.brand}
-        onChange={(value) => updateFilter("brand", value)}
-      />
-      
-      <PriceRangeFilter
-        currentMin={currentFilters.minPrice}
-        currentMax={currentFilters.maxPrice}
-        onChange={updatePriceRange}
-      />
-      
-      <StockFilter
-        checked={currentFilters.inStock === "true"}
-        onChange={(checked) => updateFilter("inStock", checked ? "true" : null)}
-      />
-    </div>
-  );
-
   return (
     <>
       {/* Mobile Filter Button & Sheet */}
@@ -108,7 +131,13 @@ export default function ProductFilters({
               <SheetTitle>Filters</SheetTitle>
             </SheetHeader>
             <div className="mt-6">
-              <FilterContent />
+              <FilterContent
+                categories={categories}
+                brands={brands}
+                currentFilters={currentFilters}
+                updateFilter={updateFilter}
+                updatePriceRange={updatePriceRange}
+              />
             </div>
           </SheetContent>
         </Sheet>
@@ -118,7 +147,13 @@ export default function ProductFilters({
       <aside className="hidden lg:block w-64 flex-shrink-0">
         <div className="sticky top-4">
           <h2 className="text-lg font-semibold mb-4">Filters</h2>
-          <FilterContent />
+          <FilterContent
+            categories={categories}
+            brands={brands}
+            currentFilters={currentFilters}
+            updateFilter={updateFilter}
+            updatePriceRange={updatePriceRange}
+          />
         </div>
       </aside>
     </>

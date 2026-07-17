@@ -37,8 +37,8 @@ export default async function ShopPage({
     minPrice: params.minPrice,
     maxPrice: params.maxPrice,
     inStock: params.inStock === "true",
-    sortBy: (params.sortBy as any) || "createdAt",
-    order: (params.order as any) || "desc",
+    sortBy: (params.sortBy as "name" | "price" | "rating" | "createdAt" | undefined) || "createdAt",
+    order: (params.order as "asc" | "desc" | undefined) || "desc",
     page: Number(params.page) || 1,
   };
 

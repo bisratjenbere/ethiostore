@@ -178,7 +178,7 @@ export default async function AdminOrderDetailsPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {formattedOrder.orderItems.map((item: any) => (
+                  {formattedOrder.orderItems.map((item) => (
                     <TableRow key={item.productId}>
                       <TableCell>
                         <Link

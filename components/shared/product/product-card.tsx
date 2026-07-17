@@ -1,4 +1,4 @@
-import { Product } from "@/types";
+import { Product, ProductListItem } from "@/types";
 import ProductPrice from "./product-price";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const ProductCard = ({ product }: { product: Product }) => {
+const ProductCard = ({ product }: { product: Product | ProductListItem }) => {
   return (
     <Card className="group h-full overflow-hidden hover:shadow-2xl transition-all duration-300 border-0 shadow-md">
       {/* Image with Badges */}

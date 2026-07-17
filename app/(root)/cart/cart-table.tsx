@@ -28,6 +28,7 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
   const handleCartAction = async (
     productId: string, 
     action: 'inc' | 'dec' | 'del',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callback: () => Promise<any>
   ) => {
     setLoadingItems(prev => ({ ...prev, [productId]: action }));
@@ -58,7 +59,7 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
           <div className="space-y-2">
             <h2 className="h2-bold">Your cart is empty</h2>
             <p className="text-muted-foreground">
-              Looks like you haven't added anything to your cart yet
+              Looks like you haven&apos;t added anything to your cart yet
             </p>
           </div>
           <Button asChild size="lg">
@@ -325,7 +326,7 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                     <div className="flex items-center gap-3">
                       <Truck className="h-5 w-5 text-green-600" />
                       <p className="text-sm font-medium text-green-900">
-                        You've qualified for <strong>FREE shipping!</strong> 🎉
+                        You&apos;ve qualified for <strong>FREE shipping!</strong> 🎉
                       </p>
                     </div>
                   </CardContent>

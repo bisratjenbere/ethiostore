@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -48,6 +47,7 @@ export default function ProductForm({ type, product }: ProductFormProps) {
   const router = useRouter();
 
   const form = useForm<ProductFormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(insertProductSchema) as any,
     defaultValues: product || {
       name: "",

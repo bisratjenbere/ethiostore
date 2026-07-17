@@ -54,7 +54,7 @@ const SignIn = async (props: {
           <CardContent className="space-y-4">
             <CredentialsSignInForm />
             <div className="text-center text-sm">
-              <span className="text-muted-foreground">Don't have an account? </span>
+              <span className="text-muted-foreground">Don&apos;t have an account? </span>
               <Link 
                 href="/sign-up" 
                 className="text-primary hover:underline font-medium"

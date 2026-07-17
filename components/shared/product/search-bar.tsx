@@ -62,7 +62,7 @@ export default function SearchBar({ defaultValue }: { defaultValue?: string }) {
       </div>
       {value && (
         <p className="text-xs text-muted-foreground mt-2 ml-1">
-          Searching for "{value}"...
+          Searching for &quot;{value}&quot;...
         </p>
       )}
     </div>

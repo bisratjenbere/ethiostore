@@ -1,9 +1,9 @@
-import { Product } from "@/types";
+import { Product, ProductListItem } from "@/types";
 import ProductCard from "./product-card";
 import { Package } from "lucide-react";
 
 interface ProductGridProps {
-  products: Product[];
+  products: ProductListItem[] | Product[];
 }
 
 export default function ProductGrid({ products }: ProductGridProps) {
@@ -13,7 +13,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
         <Package className="h-16 w-16 text-muted-foreground mb-4" />
         <h3 className="text-lg font-semibold mb-2">No products found</h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Try adjusting your search or filters to find what you're looking for
+          Try adjusting your search or filters to find what you&apos;re looking for
         </p>
       </div>
     );

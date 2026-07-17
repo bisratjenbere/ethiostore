@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getMyCart } from "@/lib/actions/cart.actions";
 import AddToCart from "./add-to-cart";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Cart } from "@/types";
 
 interface AddToCartWrapperProps {
   item: {
@@ -17,7 +18,7 @@ interface AddToCartWrapperProps {
 }
 
 const AddToCartWrapper = ({ item }: AddToCartWrapperProps) => {
-  const [cart, setCart] = useState<any>(null);
+  const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
