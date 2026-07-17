@@ -158,7 +158,7 @@ export async function createStripeCheckoutSession(orderId: string) {
     console.error("Error creating Stripe checkout session:", error);
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -212,7 +212,7 @@ export async function markOrderAsPaid(
         data: {
           isPaid: true,
           paidAt: new Date(),
-          paymentResult: paymentResult as any,
+          paymentResult,
         },
       });
 
@@ -271,7 +271,7 @@ export async function markOrderAsPaid(
     console.error("Error marking order as paid:", error);
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -305,6 +305,7 @@ export async function markOrderAsPaymentFailed(
           status: "failed",
           reason: failureReason,
           timestamp: new Date().toISOString(),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
       },
     });
@@ -319,7 +320,7 @@ export async function markOrderAsPaymentFailed(
     console.error("Error marking order as payment failed:", error);
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -334,27 +335,43 @@ export async function markOrderAsPaymentFailed(
  */
 export async function getStripeCheckoutSession(sessionId: string) {
   try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+    const session = await auth();
+    if (!session?.user?.id) {
+      throw new Error("Unauthorized");
+    }
+
+    const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ["payment_intent"],
     });
+
+    const orderId = checkoutSession.metadata?.orderId;
+    if (orderId) {
+      const order = await prisma.order.findUnique({
+        where: { id: orderId },
+        select: { userId: true },
+      });
+      if (order && order.userId !== session.user.id && session.user.role !== "admin") {
+        throw new Error("Unauthorized to view this session");
+      }
+    }
 
     return {
       success: true,
       data: {
-        id: session.id,
-        status: session.status,
-        paymentStatus: session.payment_status,
-        amountTotal: session.amount_total,
-        currency: session.currency,
-        customerEmail: session.customer_email,
-        orderId: session.metadata?.orderId,
+        id: checkoutSession.id,
+        status: checkoutSession.status,
+        paymentStatus: checkoutSession.payment_status,
+        amountTotal: checkoutSession.amount_total,
+        currency: checkoutSession.currency,
+        customerEmail: checkoutSession.customer_email,
+        orderId: checkoutSession.metadata?.orderId,
       },
     };
   } catch (error) {
     console.error("Error retrieving checkout session:", error);
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }

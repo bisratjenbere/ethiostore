@@ -2,10 +2,14 @@ import { ReactNode } from "react";
 import AdminSidebar from "@/components/admin/layout/admin-sidebar";
 import AdminHeader from "@/components/admin/layout/admin-header";
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const session = await auth();
-  
+  if (session?.user?.role !== "admin") {
+    redirect("/");
+  }
+
   return (
     <div className="flex h-screen overflow-hidden">
       <AdminSidebar />

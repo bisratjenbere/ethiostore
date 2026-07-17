@@ -97,11 +97,12 @@ export async function addItemToCart(data: cartItem) {
         } cart sucessfully`,
       };
     }
-  } catch (error) {}
-  return {
-    success: true,
-    message: "item added to cart",
-  };
+  } catch (error) {
+    return {
+      success: false,
+      message: await formatError(error),
+    };
+  }
 }
 
 export async function getMyCart() {
@@ -174,7 +175,7 @@ export async function removeItemFromCart(productId: string) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }

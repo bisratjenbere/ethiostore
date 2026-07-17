@@ -1,5 +1,4 @@
 "use server";
-
 import { auth } from "@/auth";
 import { prisma } from "@/db/prisma";
 import { revalidatePath } from "next/cache";
@@ -39,6 +38,7 @@ export async function getAllOrders(filters: OrderFilters = {}) {
     const skip = (page - 1) * limit;
 
     // Build where clause
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {};
 
     if (filters.isPaid !== undefined && filters.isPaid !== "all") {
@@ -115,7 +115,7 @@ export async function getAllOrders(filters: OrderFilters = {}) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -159,7 +159,7 @@ export async function updateOrderPaymentStatus(
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -201,7 +201,6 @@ export async function updateOrderDeliveryStatus(
     revalidatePath("/admin/orders");
     revalidatePath(`/admin/orders/${orderId}`);
 
-    // Send shipping notification email if delivered (async, don't wait)
     if (isDelivered) {
       sendShippingNotificationEmail(orderId).catch(err => {
         console.error('Error sending shipping notification email:', err);
@@ -215,7 +214,7 @@ export async function updateOrderDeliveryStatus(
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -238,6 +237,7 @@ export async function getAllProducts(filters: ProductFilters = {}) {
     const skip = (page - 1) * limit;
 
     // Build where clause
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {};
 
     if (filters.category && filters.category !== "all") {
@@ -298,7 +298,7 @@ export async function getAllProducts(filters: ProductFilters = {}) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -344,7 +344,7 @@ export async function createProduct(data: z.infer<typeof insertProductSchema>) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -400,7 +400,7 @@ export async function updateProduct(
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -448,7 +448,7 @@ export async function deleteProduct(id: string) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -480,7 +480,7 @@ export async function getProductById(id: string) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -510,6 +510,7 @@ export async function getAllUsers(filters: UserFilters = {}) {
     const skip = (page - 1) * limit;
 
     // Build where clause
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {};
 
     if (filters.role && filters.role !== "all") {
@@ -560,7 +561,7 @@ export async function getAllUsers(filters: UserFilters = {}) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -630,7 +631,7 @@ export async function getUserDetails(userId: string) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -676,7 +677,7 @@ export async function updateUserRole(
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -794,7 +795,7 @@ export async function getDashboardMetrics() {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }

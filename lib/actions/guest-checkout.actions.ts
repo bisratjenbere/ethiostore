@@ -18,9 +18,10 @@ export async function saveGuestCheckoutData(data: Partial<GuestCheckoutData>) {
   const merged = { ...existing, ...data };
   cookieStore.set(COOKIE, JSON.stringify(merged), {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
     maxAge: MAX_AGE,
     path: "/",
-    sameSite: "lax",
   });
 }
 

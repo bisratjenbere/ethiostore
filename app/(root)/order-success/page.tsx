@@ -22,8 +22,6 @@ async function OrderSuccessContent({
   if (!sessionId) {
     redirect("/");
   }
-
-  // Retrieve and verify the checkout session
   const sessionResult = await getStripeCheckoutSession(sessionId);
 
   if (!sessionResult.success || !sessionResult.data) {
@@ -36,7 +34,7 @@ async function OrderSuccessContent({
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-4">
-            We couldn't verify your payment. Please check your order history or
+            We couldn&apos;t verify your payment. Please check your order history or
             contact support.
           </p>
           <div className="flex gap-4">
@@ -94,20 +92,16 @@ async function OrderSuccessContent({
               <p className="text-sm text-muted-foreground">Payment Status</p>
               <p className="font-semibold capitalize">{data.paymentStatus}</p>
             </div>
-            <div>
+            <div className="col-span-2">
               <p className="text-sm text-muted-foreground">Amount Paid</p>
               <p className="font-semibold">
                 ${((data.amountTotal || 0) / 100).toFixed(2)}
               </p>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Email</p>
-              <p className="text-sm">{data.customerEmail}</p>
-            </div>
           </div>
 
           <div className="pt-4 border-t">
-            <h3 className="font-semibold mb-2">What's Next?</h3>
+            <h3 className="font-semibold mb-2">What&apos;s Next?</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
@@ -124,7 +118,7 @@ async function OrderSuccessContent({
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
                 <span>
-                  We'll notify you when your order ships
+                  We&apos;ll notify you when your order ships
                 </span>
               </li>
             </ul>

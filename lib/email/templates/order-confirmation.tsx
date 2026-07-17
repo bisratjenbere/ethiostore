@@ -32,6 +32,32 @@ export function generateOrderConfirmationEmail({
     day: 'numeric',
   });
 
+  function escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  const safeName = escapeHtml(customerName);
+  const safeEmail = escapeHtml(customerEmail);
+  const safeOrderId = escapeHtml(order.id.slice(0, 8).toUpperCase());
+  const safeTotalPrice = escapeHtml(Number(order.totalPrice).toFixed(2));
+  const safeOrderDate = escapeHtml(orderDate);
+  const safeFullName = escapeHtml(order.shippingAddress.fullName);
+  const safeStreet = escapeHtml(order.shippingAddress.streetAddress);
+  const safeCity = escapeHtml(order.shippingAddress.city);
+  const safeCountry = escapeHtml(order.shippingAddress.country);
+  const safePostal = escapeHtml(order.shippingAddress.postalCode);
+
+  const safeItems = order.items.map(item => ({
+    name: escapeHtml(item.name),
+    qty: item.qty,
+    price: escapeHtml(Number(item.price).toFixed(2)),
+  }));
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -175,18 +201,18 @@ export function generateOrderConfirmationEmail({
       <div class="container">
         <div class="header">
           <h1>✅ Order Confirmed!</h1>
-          <p>Thank you for your order, ${customerName}</p>
+          <p>Thank you for your order, ${safeName}</p>
         </div>
         
         <div class="content">
-          <p style="font-size: 16px; color: #374151;">Hi ${customerName},</p>
+          <p style="font-size: 16px; color: #374151;">Hi ${safeName},</p>
           <p style="color: #6b7280;">We've received your order and it's being processed. You'll receive another email when your order ships.</p>
           
           <div class="order-info">
             <h2>Order Details</h2>
-            <p><strong>Order Number:</strong> #${order.id.slice(0, 8).toUpperCase()}</p>
-            <p><strong>Order Date:</strong> ${orderDate}</p>
-            <p><strong>Email:</strong> ${customerEmail}</p>
+          <p><strong>Order Number:</strong> #${safeOrderId}</p>
+          <p><strong>Order Date:</strong> ${safeOrderDate}</p>
+          <p><strong>Email:</strong> ${safeEmail}</p>
           </div>
 
           <div class="order-info">
@@ -200,7 +226,7 @@ export function generateOrderConfirmationEmail({
                 </tr>
               </thead>
               <tbody>
-                ${order.items
+                ${safeItems
                   .map(
                     (item) => `
                   <tr>
@@ -216,7 +242,7 @@ export function generateOrderConfirmationEmail({
                   .join('')}
                 <tr class="total-row">
                   <td colspan="2" style="text-align: right;">Total:</td>
-                  <td style="text-align: right;">$${Number(order.totalPrice).toFixed(2)}</td>
+                  <td style="text-align: right;">$${safeTotalPrice}</td>
                 </tr>
               </tbody>
             </table>
@@ -224,12 +250,12 @@ export function generateOrderConfirmationEmail({
 
           <div class="order-info">
             <h2>Shipping Address</h2>
-            <div class="address-box">
-              <strong>${order.shippingAddress.fullName}</strong><br>
-              ${order.shippingAddress.streetAddress}<br>
-              ${order.shippingAddress.city}, ${order.shippingAddress.postalCode}<br>
-              ${order.shippingAddress.country}
-            </div>
+             <div class="address-box">
+               <strong>${safeFullName}</strong><br>
+               ${safeStreet}<br>
+               ${safeCity}, ${safePostal}<br>
+               ${safeCountry}
+             </div>
           </div>
 
           <div class="button-container">
@@ -258,20 +284,20 @@ Hi ${customerName},
 
 Thank you for your order. We've received it and it's being processed.
 
-Order Number: #${order.id.slice(0, 8).toUpperCase()}
-Order Date: ${orderDate}
-Total: $${Number(order.totalPrice).toFixed(2)}
+Order Number: #${safeOrderId}
+Order Date: ${safeOrderDate}
+Total: $${safeTotalPrice}
 
 Order Items:
-${order.items
+${safeItems
   .map((item) => `- ${item.name} x${item.qty}: $${(Number(item.price) * item.qty).toFixed(2)}`)
   .join('\n')}
 
 Shipping Address:
-${order.shippingAddress.fullName}
-${order.shippingAddress.streetAddress}
-${order.shippingAddress.city}, ${order.shippingAddress.postalCode}
-${order.shippingAddress.country}
+${safeFullName}
+${safeStreet}
+${safeCity}, ${safePostal}
+${safeCountry}
 
 View your order: ${process.env.NEXT_PUBLIC_SERVER_URL}/user/order/${order.id}
 

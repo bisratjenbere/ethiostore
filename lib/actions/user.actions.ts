@@ -67,12 +67,18 @@ export async function signUp(prevState: unknown, formData: FormData) {
     if (isRedirectError(error)) throw error;
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
 
 export async function updateUserNameInDb(userId: string, newName: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (session.user.id !== userId && session.user.role !== "admin") {
+    throw new Error("Unauthorized to update this user");
+  }
+
   await prisma.user.update({
     where: { id: userId },
     data: { name: newName },
@@ -80,11 +86,28 @@ export async function updateUserNameInDb(userId: string, newName: string) {
 }
 
 export async function getUserById(userId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (session.user.id !== userId && session.user.role !== "admin") {
+    throw new Error("Unauthorized to view this user");
+  }
+
   const user = await prisma.user.findFirst({
     where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      address: true,
+      paymentMethod: true,
+      image: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
 
-  if (!user) throw new Error("User is not found ");
+  if (!user) throw new Error("User is not found");
 
   return user;
 }
@@ -110,7 +133,7 @@ export async function updateUserAddress(data: ShippingAddress) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -134,7 +157,7 @@ export async function updateUserPaymentMethod(
   } catch (error) {
     return {
       sucess: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }

@@ -118,7 +118,7 @@ export async function createCategory(data: CategoryInput) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -152,7 +152,7 @@ export async function updateCategory(id: string, data: CategoryInput) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -202,7 +202,7 @@ export async function deleteCategory(id: string) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }
@@ -241,7 +241,7 @@ export async function toggleCategoryStatus(id: string) {
   } catch (error) {
     return {
       success: false,
-      message: formatError(error),
+      message: await formatError(error),
     };
   }
 }

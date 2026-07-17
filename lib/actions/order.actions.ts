@@ -7,6 +7,14 @@ import { convertToPlainObject, formatError } from "../utils";
 import { cartItem } from "@/types";
 import { getMyCart } from "./cart.actions";
 import { getGuestCheckoutData } from "./guest-checkout.actions";
+import { sendGuestAccountEmail } from "@/lib/email/actions/email.actions";
+import { hashSync } from "bcrypt-ts";
+import { Decimal } from "prisma/prisma-client";
+
+const round2 = (value: number | string) => {
+  const num = typeof value === "string" ? Number(value) : value;
+  return Math.round((num + Number.EPSILON) * 100) / 100;
+};
 
 // Create Order
 export async function createOrder() {
@@ -19,7 +27,6 @@ export async function createOrder() {
     let paymentMethod: string;
 
     if (isGuest) {
-     
       const guestData = await getGuestCheckoutData();
       if (!guestData?.address) throw new Error("Shipping address is required");
       if (!guestData?.paymentMethod) throw new Error("Payment method is required");
@@ -33,17 +40,22 @@ export async function createOrder() {
         where: { email: guestData.email },
       });
       if (!guestUser) {
+        const temporaryPassword = crypto.randomUUID();
         guestUser = await prisma.user.create({
           data: {
             email: guestData.email,
             name: guestData.address.fullName,
             role: "user",
+            password: hashSync(temporaryPassword, 10),
           },
+        });
+        // Send login credentials to guest (non-blocking)
+        sendGuestAccountEmail(guestData.email, temporaryPassword).catch((err) => {
+          console.error("Failed to send guest account email:", err);
         });
       }
       userId = guestUser.id;
     } else {
-      
       userId = session.user.id!;
       const user = await prisma.user.findFirst({ where: { id: userId } });
       if (!user) throw new Error("User not found");
@@ -70,36 +82,45 @@ export async function createOrder() {
           id: true,
           name: true,
           stock: true,
+          price: true,
         },
       });
 
       // Create lookup map for O(1) access
       const productMap = new Map(products.map((p) => [p.id, p]));
 
-      // Validate in-memory (same logic as before, just 5x faster)
+      // Validate stock and calculate server-side prices
+      let itemsPrice = new Decimal(0);
       for (const item of cartItems) {
         const product = productMap.get(item.productId);
-        
+
         if (!product) {
           throw new Error(`Product ${item.name} not found`);
         }
-        
+
         if (product.stock < item.qty) {
           throw new Error(
             `Insufficient stock for ${item.name}. Available: ${product.stock}, Requested: ${item.qty}`
           );
         }
+
+        const dbPrice = new Decimal(product.price.toString());
+        itemsPrice = itemsPrice.plus(dbPrice.times(item.qty));
       }
+
+      const shippingPrice = itemsPrice.gt(3000) ? new Decimal(0) : new Decimal(300);
+      const taxPrice = itemsPrice.times(0.15);
+      const totalPrice = itemsPrice.plus(shippingPrice).plus(taxPrice);
 
       const newOrder = await tx.order.create({
         data: {
           userId,
           shippingAddress,
           paymentMethod,
-          itemsPrice: cart.itemsPrice,
-          shippingPrice: cart.shippingPrice,
-          taxPrice: cart.taxPrice,
-          totalPrice: cart.totalPrice,
+          itemsPrice: round2(itemsPrice.toNumber()).toFixed(2),
+          shippingPrice: round2(shippingPrice.toNumber()).toFixed(2),
+          taxPrice: round2(taxPrice.toNumber()).toFixed(2),
+          totalPrice: round2(totalPrice.toNumber()).toFixed(2),
           isPaid: false,
           deliveredAt: new Date("2099-12-31"),
         },
@@ -115,6 +136,17 @@ export async function createOrder() {
           image: item.image,
         })),
       });
+
+      // Atomically decrement stock to prevent race conditions
+      for (const item of cartItems) {
+        const result = await tx.product.update({
+          where: { id: item.productId, stock: { gte: item.qty } },
+          data: { stock: { decrement: item.qty } },
+        });
+        if (!result) {
+          throw new Error(`Insufficient stock for ${item.name}`);
+        }
+      }
 
       return newOrder;
     });
@@ -193,9 +225,14 @@ export async function getOrderById(orderId: string) {
   });
 }
 
-// Guest order lookup by email + orderId (no auth required)
+// Guest order lookup by email + orderId (auth required)
 export async function lookupGuestOrder(email: string, orderId: string) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { success: false, message: "Unauthorized" };
+    }
+
     const order = await prisma.order.findFirst({
       where: {
         id: orderId,
@@ -206,6 +243,10 @@ export async function lookupGuestOrder(email: string, orderId: string) {
 
     if (!order) {
       return { success: false, message: "No order found with that email and order ID" };
+    }
+
+    if (order.userId !== session.user.id && session.user.role !== "admin") {
+      return { success: false, message: "Unauthorized" };
     }
 
     return {

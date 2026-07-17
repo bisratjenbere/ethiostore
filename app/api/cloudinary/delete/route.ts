@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import cloudinary from "@/lib/cloudinary";
+import cloudinary, { CLOUDINARY_FOLDER } from "@/lib/cloudinary";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,6 +27,13 @@ export async function POST(request: NextRequest) {
     if (!publicId) {
       return NextResponse.json(
         { success: false, message: "Public ID is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!publicId.startsWith(CLOUDINARY_FOLDER)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid public ID" },
         { status: 400 }
       );
     }

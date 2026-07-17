@@ -26,19 +26,19 @@ export const round2 = (value: string | number) => {
 };
 
 //eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function formatError(error: any) {
+export async function formatError(error: any): Promise<string> {
+  console.error("Internal error:", error);
   if (error instanceof ZodError) {
-    const fieldErrors = error.issues.map((err) => err.message);
-    return fieldErrors.join(". ");
-  } else if (error instanceof PrismaClientKnownRequestError) {
-    const field = (error.meta?.target as string) ?? "Field";
-
-    return `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
-  } else {
-    return typeof error.message === "string"
-      ? error.message
-      : JSON.stringify(error.message);
+    return error.issues.map((err) => err.message).join(". ");
   }
+  if (error instanceof PrismaClientKnownRequestError) {
+    const field = (error.meta?.target as string) ?? "Field";
+    return `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`;
+  }
+  if (typeof error.message === "string") {
+    return error.message;
+  }
+  return "An unexpected error occurred. Please try again.";
 }
 //eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getNormalizedName(user: any) {
