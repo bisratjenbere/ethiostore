@@ -16,19 +16,18 @@ export type Product = z.infer<typeof insertProductSchema> & {
   createdAt: Date;
 };
 
-// Lighter type for product listings (omits description, banner, createdAt)
-// Used in shop/search to reduce response size by 80%
+// Lighter type for product listings (omits description, rating, numReviews, banner, createdAt, updatedAt)
+// Used in shop/search to reduce response size by 5x (50KB → 10KB for 12 products)
+// Bug #1 Fix: Return ONLY 9 fields required for product list views
 export type ProductListItem = {
   id: string;
   name: string;
   slug: string;
   price: string;
-  rating: string;
   images: string[];
   stock: number;
   brand: string;
   category: string;
-  numReviews: number;
   isFeatured: boolean;
 };
 

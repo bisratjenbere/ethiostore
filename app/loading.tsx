@@ -16,7 +16,7 @@ const Loading = () => {
         src={loader} 
         height={150} 
         width={150} 
-        alt="Loading...." 
+        alt="Loading" 
         style={{ maxWidth: '150px', height: 'auto' }}
       />
     </div>

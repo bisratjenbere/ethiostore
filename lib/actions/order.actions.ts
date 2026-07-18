@@ -9,7 +9,6 @@ import { getMyCart } from "./cart.actions";
 import { getGuestCheckoutData } from "./guest-checkout.actions";
 import { sendGuestAccountEmail } from "@/lib/email/actions/email.actions";
 import { hashSync } from "bcrypt-ts";
-import { Decimal } from "prisma/prisma-client";
 
 const round2 = (value: number | string) => {
   const num = typeof value === "string" ? Number(value) : value;
@@ -90,7 +89,7 @@ export async function createOrder() {
       const productMap = new Map(products.map((p) => [p.id, p]));
 
       // Validate stock and calculate server-side prices
-      let itemsPrice = new Decimal(0);
+      let itemsPrice = 0;
       for (const item of cartItems) {
         const product = productMap.get(item.productId);
 
@@ -104,23 +103,23 @@ export async function createOrder() {
           );
         }
 
-        const dbPrice = new Decimal(product.price.toString());
-        itemsPrice = itemsPrice.plus(dbPrice.times(item.qty));
+        const dbPrice = Number(product.price.toString());
+        itemsPrice += dbPrice * item.qty;
       }
 
-      const shippingPrice = itemsPrice.gt(3000) ? new Decimal(0) : new Decimal(300);
-      const taxPrice = itemsPrice.times(0.15);
-      const totalPrice = itemsPrice.plus(shippingPrice).plus(taxPrice);
+      const shippingPrice = itemsPrice > 3000 ? 0 : 300;
+      const taxPrice = itemsPrice * 0.15;
+      const totalPrice = itemsPrice + shippingPrice + taxPrice;
 
       const newOrder = await tx.order.create({
         data: {
           userId,
           shippingAddress,
           paymentMethod,
-          itemsPrice: round2(itemsPrice.toNumber()).toFixed(2),
-          shippingPrice: round2(shippingPrice.toNumber()).toFixed(2),
-          taxPrice: round2(taxPrice.toNumber()).toFixed(2),
-          totalPrice: round2(totalPrice.toNumber()).toFixed(2),
+          itemsPrice: round2(itemsPrice).toFixed(2),
+          shippingPrice: round2(shippingPrice).toFixed(2),
+          taxPrice: round2(taxPrice).toFixed(2),
+          totalPrice: round2(totalPrice).toFixed(2),
           isPaid: false,
           deliveredAt: new Date("2099-12-31"),
         },

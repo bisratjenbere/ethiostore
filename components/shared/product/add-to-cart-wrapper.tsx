@@ -18,13 +18,13 @@ interface AddToCartWrapperProps {
 }
 
 const AddToCartWrapper = ({ item }: AddToCartWrapperProps) => {
-  const [cart, setCart] = useState<Cart | null>(null);
+  const [cart, setCart] = useState<Cart | null | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCart = async () => {
       const cartData = await getMyCart();
-      setCart(cartData);
+      setCart(cartData ?? undefined);
       setLoading(false);
     };
 

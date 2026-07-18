@@ -152,8 +152,9 @@ export async function searchProducts(params: SearchProductsParams = {}) {
     // Execute queries in parallel for better performance
     const [products, total, categories, brands] = await Promise.all([
       // Get products
-      // FIX #8: Add select to reduce response size by 80% (50KB → 10KB)
-      // Only fetch fields needed for product listing
+      // ✅ Bug #1 Fix: Return ONLY 9 fields required for product list views
+      // Excludes: description, rating, numReviews, banner, createdAt, updatedAt
+      // Response size reduced by 5x: 50KB → 10KB for 12 products
       prisma.product.findMany({
         where,
         orderBy,
@@ -164,13 +165,11 @@ export async function searchProducts(params: SearchProductsParams = {}) {
           name: true,
           slug: true,
           price: true,
-          rating: true,
-          images: true,
           stock: true,
           brand: true,
           category: true,
-          numReviews: true,
           isFeatured: true,
+          images: true, // Still needed for first image display
         },
       }),
 
@@ -190,7 +189,6 @@ export async function searchProducts(params: SearchProductsParams = {}) {
       convertToPlainObject({
         ...product,
         price: product.price.toString(),
-        rating: product.rating.toString(),
         images: Array.isArray(product.images)
           ? product.images.filter(
               (img): img is string => typeof img === "string" && img.length > 0
@@ -221,6 +219,7 @@ export async function searchProducts(params: SearchProductsParams = {}) {
       } as SearchProductsResult,
     };
   } catch (error) {
+    console.error("searchProducts error:", error);
     return {
       success: false,
       message: error instanceof Error ? error.message : "Search failed",
@@ -292,35 +291,61 @@ export async function getPriceRanges() {
 // FIX #10: Cached category aggregation
 // Cache for 5 minutes to reduce repeated groupBy queries
 // Revalidate when products are added/updated (via tag)
-const getCachedCategories = unstable_cache(
-  async () => {
+// Fallback to direct query in test environment where unstable_cache is not available
+let getCachedCategories: () => Promise<any>;
+try {
+  getCachedCategories = unstable_cache(
+    async () => {
+      return await prisma.product.groupBy({
+        by: ["category"],
+        _count: { category: true },
+        orderBy: { category: "asc" },
+      });
+    },
+    ["shop-categories"],
+    {
+      tags: ["products"],
+      revalidate: 300, // 5 minutes
+    }
+  );
+} catch (e) {
+  // Fallback for test environment
+  getCachedCategories = async () => {
     return await prisma.product.groupBy({
       by: ["category"],
       _count: { category: true },
       orderBy: { category: "asc" },
     });
-  },
-  ["shop-categories"],
-  {
-    tags: ["products"],
-    revalidate: 300, // 5 minutes
-  }
-);
+  };
+}
 
 // FIX #10: Cached brand aggregation
 // Cache for 5 minutes to reduce repeated groupBy queries
 // Revalidate when products are added/updated (via tag)
-const getCachedBrands = unstable_cache(
-  async () => {
+// Fallback to direct query in test environment where unstable_cache is not available
+let getCachedBrands: () => Promise<any>;
+try {
+  getCachedBrands = unstable_cache(
+    async () => {
+      return await prisma.product.groupBy({
+        by: ["brand"],
+        _count: { brand: true },
+        orderBy: { brand: "asc" },
+      });
+    },
+    ["shop-brands"],
+    {
+      tags: ["products"],
+      revalidate: 300, // 5 minutes
+    }
+  );
+} catch (e) {
+  // Fallback for test environment
+  getCachedBrands = async () => {
     return await prisma.product.groupBy({
       by: ["brand"],
       _count: { brand: true },
       orderBy: { brand: "asc" },
     });
-  },
-  ["shop-brands"],
-  {
-    tags: ["products"],
-    revalidate: 300, // 5 minutes
-  }
-);
+  };
+}

@@ -136,7 +136,8 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                                 disabled={!!loadingItems[item.productId]}
                                 variant="outline"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-11 w-11"
+                                aria-label="Decrease quantity"
                                 onClick={() => handleCartAction(
                                   item.productId,
                                   'dec',
@@ -154,7 +155,8 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                                 disabled={!!loadingItems[item.productId]}
                                 variant="outline"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-11 w-11"
+                                aria-label="Increase quantity"
                                 onClick={() => handleCartAction(
                                   item.productId,
                                   'inc',
@@ -178,6 +180,7 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-destructive hover:text-destructive"
+                              aria-label="Remove item"
                               onClick={() => handleCartAction(
                                 item.productId,
                                 'del',
@@ -232,7 +235,8 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                               disabled={!!loadingItems[item.productId]}
                               variant="outline"
                               size="icon"
-                              className="h-8 w-8"
+                              className="h-11 w-11"
+                              aria-label="Decrease quantity"
                               onClick={() => handleCartAction(
                                 item.productId,
                                 'dec',
@@ -250,7 +254,8 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                               disabled={!!loadingItems[item.productId]}
                               variant="outline"
                               size="icon"
-                              className="h-8 w-8"
+                              className="h-11 w-11"
+                              aria-label="Increase quantity"
                               onClick={() => handleCartAction(
                                 item.productId,
                                 'inc',
@@ -300,17 +305,17 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
             <div className="sticky top-20 space-y-4">
               {/* Free Shipping Progress */}
               {remaining > 0 && (
-                <Card className="bg-amber-50 border-amber-200">
+                <Card className="bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800">
                   <CardContent className="p-4 space-y-3">
                     <div className="flex items-start gap-3">
-                      <Truck className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                      <Truck className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                       <div className="space-y-2 flex-1">
-                        <p className="text-sm font-medium text-amber-900">
+                        <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
                           Add {FormatCurrency(remaining)} more for <strong>FREE shipping!</strong>
                         </p>
-                        <div className="h-2 bg-amber-200 rounded-full overflow-hidden">
+                        <div className="h-2 bg-amber-200 dark:bg-amber-800 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-amber-500 transition-all duration-500"
+                            className="h-full bg-amber-500 dark:bg-amber-500 transition-all duration-500"
                             style={{ width: `${progress}%` }}
                           />
                         </div>
@@ -321,11 +326,11 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
               )}
               
               {remaining <= 0 && (
-                <Card className="bg-green-50 border-green-200">
+                <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <Truck className="h-5 w-5 text-green-600" />
-                      <p className="text-sm font-medium text-green-900">
+                      <Truck className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      <p className="text-sm font-medium text-green-900 dark:text-green-100">
                         You&apos;ve qualified for <strong>FREE shipping!</strong> 🎉
                       </p>
                     </div>

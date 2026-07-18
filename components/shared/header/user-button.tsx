@@ -32,7 +32,7 @@ const UserButton = () => {
     return (
       <div>
         <Button asChild>
-          <Link href="/sign-in">
+          <Link href="/sign-in" aria-label="Sign in">
             <UserIcon />
             Sign In
           </Link>

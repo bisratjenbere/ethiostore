@@ -32,7 +32,7 @@ const ProductCard = ({ product }: { product: Product | ProductListItem }) => {
           <div className="relative aspect-square bg-muted/30">
             <Image
               src={product.images![0]}
-              alt={product.name}
+              alt={`${product.name} - ${product.brand}`}
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
               sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -50,30 +50,35 @@ const ProductCard = ({ product }: { product: Product | ProductListItem }) => {
         
         {/* Product Name */}
         <Link href={`/product/${product.slug}`}>
-          <h3 className="font-semibold text-sm md:text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors min-h-[2.5rem]">
+          <h3 
+            className="font-semibold text-sm md:text-base line-clamp-2 leading-tight group-hover:text-primary transition-colors min-h-[2.5rem]"
+            title={product.name}
+          >
             {product.name}
           </h3>
         </Link>
         
-        {/* Rating */}
-        <div className="flex items-center gap-1.5">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={cn(
-                  "h-3 w-3 md:h-3.5 md:w-3.5",
-                  i < Math.floor(Number(product.rating))
-                    ? "fill-yellow-400 text-yellow-400"
-                    : "fill-gray-200 text-gray-200"
-                )}
-              />
-            ))}
+        {/* Rating - Only show if available (full Product, not ProductListItem) */}
+        {'rating' in product && product.rating !== undefined && (
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={cn(
+                    "h-3 w-3 md:h-3.5 md:w-3.5",
+                    i < Math.floor(Number(product.rating))
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "fill-gray-200 text-gray-200"
+                  )}
+                />
+              ))}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              ({product.rating})
+            </span>
           </div>
-          <span className="text-xs text-muted-foreground">
-            ({product.rating})
-          </span>
-        </div>
+        )}
         
         {/* Price & Stock */}
         <div className="flex items-center justify-between pt-2 border-t">

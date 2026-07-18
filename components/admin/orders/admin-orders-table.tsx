@@ -131,8 +131,8 @@ export default function AdminOrdersTable({
         </div>
 
         <div className="rounded-lg border bg-card p-12 text-center">
-          <p className="text-muted-foreground">No orders found</p>
-          {(filters.search || filters.isPaid !== "all" || filters.isDelivered !== "all") && (
+          <p className="text-muted-foreground mb-4">No orders found</p>
+          {(filters.search || filters.isPaid !== "all" || filters.isDelivered !== "all") ? (
             <Button
               variant="link"
               onClick={() => router.push("/admin/orders")}
@@ -140,6 +140,10 @@ export default function AdminOrdersTable({
             >
               Clear filters
             </Button>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Orders will appear here once customers complete purchases
+            </p>
           )}
         </div>
       </div>
@@ -227,7 +231,7 @@ export default function AdminOrdersTable({
                 </TableCell>
                 <TableCell>
                   {order.isPaid ? (
-                    <Badge variant="outline" className="bg-green-100">
+                    <Badge variant="outline" className="bg-green-50 dark:bg-green-950">
                       Paid
                     </Badge>
                   ) : (
@@ -236,7 +240,7 @@ export default function AdminOrdersTable({
                 </TableCell>
                 <TableCell>
                   {order.isDelivered ? (
-                    <Badge variant="outline" className="bg-blue-100">
+                    <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950">
                       Delivered
                     </Badge>
                   ) : (

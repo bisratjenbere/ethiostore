@@ -46,6 +46,7 @@ const ShippingAddressForm = ({
   const router = useRouter();
 
   const form = useForm<FormValues>({
+    mode: "onBlur",
     resolver: zodResolver(
       isGuest
         ? guestShippingSchema.extend({
@@ -105,7 +106,7 @@ const ShippingAddressForm = ({
                       field: ControllerRenderProps<FormValues, "email">;
                     }) => (
                       <FormItem>
-                        <FormLabel>Email Address</FormLabel>
+                        <FormLabel>Email Address <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -131,7 +132,7 @@ const ShippingAddressForm = ({
                     field: ControllerRenderProps<FormValues, "fullName">;
                   }) => (
                     <FormItem>
-                      <FormLabel>Full Name</FormLabel>
+                      <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
                       <FormControl>
                         <Input {...field} placeholder="Enter full name" />
                       </FormControl>
@@ -149,7 +150,7 @@ const ShippingAddressForm = ({
                     field: ControllerRenderProps<FormValues, "streetAddress">;
                   }) => (
                     <FormItem>
-                      <FormLabel>Street Address</FormLabel>
+                      <FormLabel>Street Address <span className="text-destructive">*</span></FormLabel>
                       <FormControl>
                         <Input {...field} placeholder="Enter street address" />
                       </FormControl>
@@ -168,7 +169,7 @@ const ShippingAddressForm = ({
                       field: ControllerRenderProps<FormValues, "city">;
                     }) => (
                       <FormItem>
-                        <FormLabel>City</FormLabel>
+                        <FormLabel>City <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
                           <Input {...field} placeholder="Enter city" />
                         </FormControl>
@@ -186,7 +187,7 @@ const ShippingAddressForm = ({
                       field: ControllerRenderProps<FormValues, "postalCode">;
                     }) => (
                       <FormItem>
-                        <FormLabel>Postal Code</FormLabel>
+                        <FormLabel>Postal Code <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
                           <Input placeholder="Enter postal code" {...field} />
                         </FormControl>
@@ -205,7 +206,7 @@ const ShippingAddressForm = ({
                     field: ControllerRenderProps<FormValues, "country">;
                   }) => (
                     <FormItem>
-                      <FormLabel>Country</FormLabel>
+                      <FormLabel>Country <span className="text-destructive">*</span></FormLabel>
                       <FormControl>
                         <Input placeholder="Enter country" {...field} />
                       </FormControl>
@@ -222,11 +223,16 @@ const ShippingAddressForm = ({
                   </Link>
                   <Button disabled={isPending} type="submit" className="flex-1">
                     {isPending ? (
-                      <Loader className="h-4 w-4 animate-spin mr-2" />
+                      <>
+                        <Loader className="h-4 w-4 animate-spin mr-2" />
+                        Saving...
+                      </>
                     ) : (
-                      <ArrowRight className="h-4 w-4 mr-2" />
+                      <>
+                        <ArrowRight className="h-4 w-4 mr-2" />
+                        Continue to Payment
+                      </>
                     )}
-                    Continue to Payment
                   </Button>
                 </div>
               </form>

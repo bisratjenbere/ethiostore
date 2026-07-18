@@ -110,8 +110,8 @@ export default function AdminUsersTable({
         </div>
 
         <div className="rounded-lg border bg-card p-12 text-center">
-          <p className="text-muted-foreground">No users found</p>
-          {(filters.search || filters.role !== "all") && (
+          <p className="text-muted-foreground mb-4">No users found</p>
+          {(filters.search || filters.role !== "all") ? (
             <Button
               variant="link"
               onClick={() => router.push("/admin/users")}
@@ -119,6 +119,10 @@ export default function AdminUsersTable({
             >
               Clear filters
             </Button>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Users will appear here once they sign up
+            </p>
           )}
         </div>
       </div>

@@ -29,6 +29,7 @@ const ModeToggle = () => {
         <Button
           className="focus-visible:ring-0 focus-visible:ring-offset-0"
           variant="ghost"
+          aria-label="Toggle theme"
         >
           {theme === "light" ? (
             <SunIcon />

@@ -71,9 +71,12 @@ const AddToCart = ({
     <div className="flex items-center gap-2">
       <Button 
         type="button" 
-        variant="outline" 
+        variant="outline"
+        size="icon"
+        className="h-11 w-11"
         onClick={handleRemoveFromCart}
         disabled={isPending}
+        aria-label="Decrease quantity"
       >
         {isPending && action === 'remove' ? (
           <Loader className="w-4 h-4 animate-spin" />
@@ -84,9 +87,12 @@ const AddToCart = ({
       <span className="px-2 font-semibold">{existItem.qty}</span>
       <Button 
         type="button" 
-        variant="outline" 
+        variant="outline"
+        size="icon"
+        className="h-11 w-11"
         onClick={handleAddToCart}
         disabled={isPending}
+        aria-label="Increase quantity"
       >
         {isPending && action === 'add' ? (
           <Loader className="w-4 h-4 animate-spin" />

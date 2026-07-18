@@ -6,24 +6,35 @@ import { Loader } from "lucide-react";
 
 type submitButtonProps = {
   idleText: string;
+  pendingText?: string;
   className?: string;
   isPending?: boolean;
 };
 
 const SubmitButton = ({
   idleText,
+  pendingText,
   className,
   isPending,
 }: submitButtonProps) => {
   const { pending } = useFormStatus();
+  const isLoading = isPending || pending;
+  
   return (
     <Button
       type="submit"
-      disabled={pending}
+      disabled={isLoading}
       variant="default"
       className={className}
     >
-      {isPending ? <Loader className="animate-spin h-4 w-4" /> : idleText}
+      {isLoading ? (
+        <>
+          <Loader className="animate-spin h-4 w-4 mr-2" />
+          {pendingText || idleText}
+        </>
+      ) : (
+        idleText
+      )}
     </Button>
   );
 };
